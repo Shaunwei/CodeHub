@@ -24,7 +24,12 @@ namespace CodeHub.Controllers
 
         public override void Update(bool force)
         {
-            var response = Application.Client.Users[Username].Repositories.GetAll(force);
+            GitHubSharp.GitHubResponse<List<RepositoryModel>> response;
+            if (string.Equals(Username, Application.Account.Username, StringComparison.OrdinalIgnoreCase))
+                response = Application.Client.AuthenticatedUser.Repositories.GetAll(force);
+            else
+                response = Application.Client.Users[Username].Repositories.GetAll(force);
+
             Model = new ListModel<RepositoryModel> {Data = response.Data, More = this.CreateMore(response)};
         }
 
