@@ -3,8 +3,8 @@ using CodeHub.Controllers;
 using MonoTouch.UIKit;
 using MonoTouch.Foundation;
 using MonoTouch;
-using CodeFramework.Controllers;
 using CodeFramework.Views;
+using CodeFramework.ViewControllers;
 
 namespace CodeHub.ViewControllers
 {

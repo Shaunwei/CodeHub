@@ -1,11 +1,14 @@
 using System;
 using System.Threading.Tasks;
+using CodeFramework.ViewModels;
+using GitHubSharp;
+using System.Collections.Generic;
 
 namespace CodeHub.ViewModels
 {
     public static class ViewModelExtensions
     {
-        public static void RequestModel<TRequest>(this CodeFramework.ViewModels.ViewModelBase viewModel, GitHubSharp.GitHubRequest<TRequest> request, bool forceDataRefresh, System.Action<GitHubSharp.GitHubResponse<TRequest>> update) where TRequest : new()
+        public static void RequestModel<TRequest>(this ViewModel viewModel, GitHubRequest<TRequest> request, bool forceDataRefresh, System.Action<GitHubSharp.GitHubResponse<TRequest>> update) where TRequest : new()
         {
             var stopWatch = new System.Diagnostics.Stopwatch();
             stopWatch.Start();
@@ -49,9 +52,9 @@ namespace CodeHub.ViewModels
             }
         }
 
-        public static void CreateMore<T>(this CodeFramework.ViewModels.ViewModelBase viewModel, 
-                                         GitHubSharp.GitHubResponse<T> response, 
-                                         Action<Task> assignMore, 
+        public static void CreateMore<T>(this ViewModel viewModel, 
+                                         GitHubResponse<T> response, 
+                                         Action<Action> assignMore, 
                                          Action<T> newDataAction) where T : new()
         {
             if (response.More == null)
@@ -60,11 +63,19 @@ namespace CodeHub.ViewModels
                 return;
             }
 
-            assignMore(new Task(async () => {
+            assignMore(new Action(() => {
                 response.More.UseCache = false;
-                var moreResponse = await Application.Client.ExecuteAsync(response.More);
+                var moreResponse = Application.Client.Execute(response.More);
                 viewModel.CreateMore(moreResponse, assignMore, newDataAction);
                 newDataAction(moreResponse.Data);
+            }));
+        }
+
+        public static Task SimpleCollectionLoad<T>(this CollectionViewModel<T> viewModel, GitHubRequest<List<T>> request, bool forceDataRefresh) where T : new()
+        {
+            return Task.Run(() => viewModel.RequestModel(request, forceDataRefresh, response => {
+                viewModel.Items.Reset(response.Data);
+                viewModel.CreateMore(response, m => viewModel.MoreItems = m, d => viewModel.Items.AddRange(d));
             }));
         }
     }

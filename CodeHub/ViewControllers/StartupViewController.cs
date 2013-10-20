@@ -1,14 +1,11 @@
-using System;
-using MonoTouch.UIKit;
-using CodeHub.Data;
-using System.Linq;
 using CodeFramework.Utils;
-using CodeFramework.Controllers;
-using CodeHub.ViewControllers.Accounts;
+using CodeHub.Data;
+using System;
+using System.Linq;
 
 namespace CodeHub.ViewControllers
 {
-    public class StartupViewController : CodeFramework.Controllers.StartupViewController
+    public class StartupViewController : CodeFramework.ViewControllers.StartupViewController
     {
         /// <summary>
         /// Processes the accounts.

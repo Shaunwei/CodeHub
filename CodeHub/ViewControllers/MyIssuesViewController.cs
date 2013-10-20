@@ -1,11 +1,11 @@
 using System;
 using CodeHub.Controllers;
 using MonoTouch.UIKit;
-using CodeFramework.Controllers;
 using GitHubSharp.Models;
 using CodeFramework.Elements;
 using CodeHub.Filters.Models;
 using CodeHub.Filters.ViewControllers;
+using CodeHub.ViewModels;
 
 namespace CodeHub.ViewControllers
 {
@@ -14,16 +14,15 @@ namespace CodeHub.ViewControllers
         private readonly UISegmentedControl _viewSegment;
         private readonly UIBarButtonItem _segmentBarButton;
 
-        public new MyIssuesController Controller
+        public new MyIssuesViewModel ViewModel
         {
-            get { return (MyIssuesController)base.Controller; }
-            protected set { base.Controller = value; }
+            get { return (MyIssuesViewModel)base.ViewModel; }
+            protected set { base.ViewModel = value; }
         }
 
         public MyIssuesViewController()
+            : base(new MyIssuesViewModel())
         {
-            Controller = new MyIssuesController(this);
-
             _viewSegment = new UISegmentedControl(new string[] { "Open".t(), "Closed".t(), "Custom".t() });
             _viewSegment.ControlStyle = UISegmentedControlStyle.Bar;
             _segmentBarButton = new UIBarButtonItem(_viewSegment);
@@ -54,9 +53,9 @@ namespace CodeHub.ViewControllers
             _viewSegment.ValueChanged -= SegmentValueChanged;
 
             //Select which one is currently selected
-            if (Controller.Filter.Equals(MyIssuesFilterModel.CreateOpenFilter()))
+            if (ViewModel.Filter.Equals(MyIssuesFilterModel.CreateOpenFilter()))
                 _viewSegment.SelectedSegment = 0;
-            else if (Controller.Filter.Equals(MyIssuesFilterModel.CreateClosedFilter()))
+            else if (ViewModel.Filter.Equals(MyIssuesFilterModel.CreateClosedFilter()))
                 _viewSegment.SelectedSegment = 1;
             else
                 _viewSegment.SelectedSegment = 2;
@@ -68,15 +67,15 @@ namespace CodeHub.ViewControllers
         {
             if (_viewSegment.SelectedSegment == 0)
             {
-                Controller.ApplyFilter(MyIssuesFilterModel.CreateOpenFilter(), true, false);
+                ViewModel.ApplyFilter(MyIssuesFilterModel.CreateOpenFilter(), true);
             }
             else if (_viewSegment.SelectedSegment == 1)
             {
-                Controller.ApplyFilter(MyIssuesFilterModel.CreateClosedFilter(), true, false);
+                ViewModel.ApplyFilter(MyIssuesFilterModel.CreateClosedFilter(), true);
             }
             else if (_viewSegment.SelectedSegment == 2)
             {
-                var filter = new  MyIssuesFilterViewController(Controller);
+                var filter = new  MyIssuesFilterViewController(ViewModel);
                 var nav = new UINavigationController(filter);
                 PresentViewController(nav, true, null);
             }
@@ -91,11 +90,13 @@ namespace CodeHub.ViewControllers
 
         protected override void ChildChangedModel(IssueModel changedModel, IssueModel oldModel)
         {
-            //If null then it's been deleted!
-            if (changedModel == null)
-                Controller.DeleteIssue(oldModel);
-            else
-                Controller.UpdateIssue(changedModel);
+            throw new NotImplementedException("Removed!");
+//            //If null then it's been deleted!
+//            if (changedModel == null)
+//                ViewModel.Items.Remove(oldModel);
+//            else
+//                ViewModel.UpdateIssue(changedModel);
+
         }
     }
 }

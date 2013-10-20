@@ -1,28 +1,26 @@
-using GitHubSharp.Models;
-using MonoTouch.UIKit;
-using MonoTouch.Dialog;
-using System.Linq;
+using CodeFramework.ViewControllers;
 using CodeHub.Controllers;
-using CodeFramework.Controllers;
 using CodeFramework.Elements;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+using MonoTouch.Dialog;
 
 namespace CodeHub.ViewControllers
 {
-    public class OrganizationMembersViewController : BaseListControllerDrivenViewController, IListView<BasicUserModel>
+    public class OrganizationMembersViewController : ViewModelCollectionDrivenViewController
     {
-        public OrganizationMembersViewController(string user)
+        public new OrganizationMembersViewModel ViewModel
+        {
+            get { return (OrganizationMembersViewModel)base.ViewModel; }
+            set { base.ViewModel = value; }
+        }
+
+        public OrganizationMembersViewController(string name)
         {
             SearchPlaceholder = "Search Memebers".t();
             NoItemsText = "No Members".t();
-            Title = user;
-            Controller = new OrganizationMembersController(this, user);
-        }
+            Title = name;
+            ViewModel = new OrganizationMembersViewModel(name);
 
-        public void Render(ListModel<BasicUserModel> model)
-        {
-            RenderList(model, s => {
+            BindCollection(ViewModel, s => {
                 StyledStringElement sse = new UserElement(s.Login, string.Empty, string.Empty, s.AvatarUrl);
                 sse.Tapped += () => NavigationController.PushViewController(new ProfileViewController(s.Login), true);
                 return sse;

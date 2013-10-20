@@ -3,12 +3,11 @@ using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using CodeHub.Controllers;
 using System.Text;
-using CodeFramework.Controllers;
 using CodeFramework.Views;
 
 namespace CodeHub.ViewControllers
 {
-    public abstract class FileSourceViewController : CodeFramework.Controllers.FileSourceViewController
+    public abstract class FileSourceViewController : CodeFramework.ViewControllers.FileSourceViewController
     {
         protected static string DownloadFile(string user, string slug, string branch, string path, out string mime)
         {

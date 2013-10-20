@@ -44,7 +44,8 @@
     <ConsolePause>false</ConsolePause>
     <MtouchDebug>true</MtouchDebug>
     <CodesignKey>iPhone Developer: Dillon Buchanan (BD3M6C4CAK)</CodesignKey>
-    <MtouchI18n />
+    <MtouchI18n>
+    </MtouchI18n>
     <MtouchArch>ARMv7</MtouchArch>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
@@ -57,8 +58,10 @@
     <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchUseLlvm>true</MtouchUseLlvm>
     <MtouchUseThumb>true</MtouchUseThumb>
-    <IpaPackageName />
-    <MtouchI18n />
+    <IpaPackageName>
+    </IpaPackageName>
+    <MtouchI18n>
+    </MtouchI18n>
     <MtouchArch>ARMv7</MtouchArch>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Ad-Hoc|iPhone' ">
@@ -71,7 +74,8 @@
     <ConsolePause>false</ConsolePause>
     <CodesignKey>iPhone Distribution</CodesignKey>
     <CodesignProvision>Automatic:AdHoc</CodesignProvision>
-    <MtouchI18n />
+    <MtouchI18n>
+    </MtouchI18n>
     <MtouchArch>ARMv7</MtouchArch>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|iPhone' ">
@@ -83,11 +87,13 @@
     <CodesignKey>iPhone Distribution</CodesignKey>
     <ConsolePause>false</ConsolePause>
     <CodesignProvision>F7DD164D-5C4E-4322-AF9C-CF33ACD388D4</CodesignProvision>
-    <MtouchI18n />
+    <MtouchI18n>
+    </MtouchI18n>
     <MtouchArch>ARMv7</MtouchArch>
     <MtouchUseLlvm>true</MtouchUseLlvm>
     <MtouchUseThumb>true</MtouchUseThumb>
-    <IpaPackageName />
+    <IpaPackageName>
+    </IpaPackageName>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -114,10 +120,8 @@
     <Compile Include="ViewControllers\ChangesetDiffViewController.cs" />
     <Compile Include="ViewControllers\ChangesetInfoViewController.cs" />
     <Compile Include="ViewControllers\ChangesetViewController.cs" />
-    <Compile Include="ViewControllers\EventsViewController.cs" />
     <Compile Include="ViewControllers\FileSourceViewController.cs" />
     <Compile Include="ViewControllers\FollowersViewController.cs" />
-    <Compile Include="ViewControllers\FollowingRepositoriesViewController.cs" />
     <Compile Include="ViewControllers\IssuesViewController.cs" />
     <Compile Include="ViewControllers\MenuViewController.cs" />
     <Compile Include="ViewControllers\ProfileViewController.cs" />
@@ -133,68 +137,37 @@
     <Compile Include="ViewControllers\Accounts\LoginViewController.designer.cs">
       <DependentUpon>LoginViewController.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controllers\ChangesetInfoController.cs" />
-    <Compile Include="Controllers\EventsController.cs" />
-    <Compile Include="Controllers\IssueInfoController.cs" />
-    <Compile Include="Controllers\IssuesController.cs" />
-    <Compile Include="Controllers\ProfileController.cs" />
-    <Compile Include="Controllers\RepositoriesController.cs" />
-    <Compile Include="Controllers\RepositoryInfoController.cs" />
-    <Compile Include="Controllers\SourceController.cs" />
-    <Compile Include="Controllers\TagsController.cs" />
-    <Compile Include="Controllers\UserFollowersController.cs" />
     <Compile Include="Filters\Models\IssuesFilterModel.cs" />
     <Compile Include="Filters\Models\RepositoriesFilterModel.cs" />
     <Compile Include="Filters\Models\SourceFilterModel.cs" />
     <Compile Include="Filters\ViewControllers\IssuesFilterViewController.cs" />
     <Compile Include="Filters\ViewControllers\RepositoriesFilterViewController.cs" />
     <Compile Include="Filters\ViewControllers\SourceFilterViewController.cs" />
-    <Compile Include="Controllers\OrganizationsController.cs" />
-    <Compile Include="Controllers\GistsController.cs" />
     <Compile Include="ViewControllers\GistsViewController.cs" />
     <Compile Include="ViewControllers\GistFileViewController.cs" />
-    <Compile Include="Controllers\OrganizationMembersController.cs" />
-    <Compile Include="Controllers\RepositoriesStarredController.cs" />
-    <Compile Include="Controllers\RepositoriesWatchedConroller.cs" />
-    <Compile Include="Controllers\RepositoriesExploreController.cs" />
     <Compile Include="ViewControllers\ReadmeViewController.cs" />
     <Compile Include="ViewControllers\OrganizationMembersViewController.cs" />
     <Compile Include="ViewControllers\OrganizationsViewController.cs" />
-    <Compile Include="Controllers\RepositoryEventsController.cs" />
     <Compile Include="ViewControllers\RepositoriesExploreViewController.cs" />
     <Compile Include="ViewControllers\GistInfoViewController.cs" />
-    <Compile Include="Controllers\RepositoryStarredController.cs" />
     <Compile Include="Utils\RepositoryIdentifier.cs" />
     <Compile Include="ViewControllers\RepositoryInfoViewController.cs" />
-    <Compile Include="Controllers\TeamsController.cs" />
     <Compile Include="ViewControllers\TeamsViewController.cs" />
-    <Compile Include="Controllers\NotificationsController.cs" />
-    <Compile Include="Filters\Models\NotificationsFilterModel.cs" />
     <Compile Include="ViewControllers\NotificationsViewController.cs" />
     <Compile Include="ViewControllers\OrganizationViewController.cs" />
-    <Compile Include="Controllers\OrganizationController.cs" />
-    <Compile Include="Controllers\NewsController.cs" />
     <Compile Include="ViewControllers\NewsViewController.cs" />
-    <Compile Include="Controllers\TeamMembersController.cs" />
     <Compile Include="ViewControllers\TeamMembersViewController.cs" />
     <Compile Include="ViewControllers\OrganizationEventsViewController.cs" />
     <Compile Include="ViewControllers\BaseEventsViewController.cs" />
-    <Compile Include="Controllers\OrganizationEventsController.cs" />
-    <Compile Include="Controllers\UserFollowingsController.cs" />
     <Compile Include="ViewControllers\UserFollowingsViewController.cs" />
-    <Compile Include="Controllers\MyIssuesController.cs" />
     <Compile Include="ViewControllers\MyIssuesViewController.cs" />
     <Compile Include="Filters\Models\MyIssuesFilterModel.cs" />
     <Compile Include="Filters\ViewControllers\MyIssuesFilterViewController.cs" />
     <Compile Include="ViewControllers\IssueViewController.cs" />
-    <Compile Include="Controllers\PullRequestController.cs" />
-    <Compile Include="Controllers\PullRequestsController.cs" />
     <Compile Include="Filters\Models\PullRequestsFilterModel.cs" />
     <Compile Include="ViewControllers\PullRequestsViewController.cs" />
     <Compile Include="ViewControllers\PullRequestViewController.cs" />
-    <Compile Include="Controllers\PullRequestFilesController.cs" />
     <Compile Include="ViewControllers\PullRequestFilesViewController.cs" />
-    <Compile Include="Controllers\PullRequestCommitsController.cs" />
     <Compile Include="ViewControllers\BaseIssuesViewController.cs" />
     <Compile Include="ViewControllers\Accounts\AccountTypeViewController.cs" />
     <Compile Include="ViewControllers\Accounts\AccountTypeViewController.designer.cs">
@@ -203,22 +176,57 @@
     <Compile Include="Data\GitHubAccount.cs" />
     <Compile Include="ViewControllers\IssueEditViewController.cs" />
     <Compile Include="ViewControllers\IssueMilestonesViewController.cs" />
-    <Compile Include="Controllers\IssueMilestonesController.cs" />
     <Compile Include="ViewControllers\IssueAssigneesViewController.cs" />
-    <Compile Include="Controllers\RepositoryCollaboratorsController.cs" />
-    <Compile Include="Controllers\RepositoryLabelsController.cs" />
     <Compile Include="ViewControllers\IssueLabelsViewController.cs" />
-    <Compile Include="Utils\ControllerExtensions.cs" />
     <Compile Include="ViewControllers\Accounts\WebLoginViewController.cs" />
     <Compile Include="ViewModels\GistViewModel.cs" />
     <Compile Include="Utils\ViewModelExtensions.cs" />
     <Compile Include="ViewModels\BranchesViewModel.cs" />
     <Compile Include="ViewModels\ChangesetViewModel.cs" />
+    <Compile Include="ViewModels\UserFollowingsViewModel.cs" />
+    <Compile Include="ViewModels\UserFollowersViewModel.cs" />
+    <Compile Include="ViewModels\TeamsViewModel.cs" />
+    <Compile Include="ViewModels\TagsViewModel.cs" />
+    <Compile Include="ViewModels\TeamMembersViewModel.cs" />
+    <Compile Include="ViewModels\RepositoryLabelsViewModel.cs" />
+    <Compile Include="ViewModels\ProfileViewModel.cs" />
+    <Compile Include="ViewModels\OrganizationsViewModel.cs" />
+    <Compile Include="ViewModels\OrganizationMembersViewModel.cs" />
+    <Compile Include="ViewModels\OrganizationViewModel.cs" />
+    <Compile Include="ViewModels\GistsViewModel.cs" />
+    <Compile Include="ViewModels\RepositoryViewModel.cs" />
+    <Compile Include="ViewModels\IssueMilestonesViewModel.cs" />
+    <Compile Include="ViewModels\ChangesetInfoViewModel.cs" />
+    <Compile Include="ViewModels\RepositoryCollaboratorsViewModel.cs" />
+    <Compile Include="ViewModels\RepositoryEventsViewModel.cs" />
+    <Compile Include="ViewModels\IssueViewModel.cs" />
+    <Compile Include="ViewModels\IssuesViewModel.cs" />
+    <Compile Include="ViewModels\PullRequestViewModel.cs" />
+    <Compile Include="ViewModels\NotificationsViewModel.cs" />
+    <Compile Include="ViewModels\SourceViewModel.cs" />
+    <Compile Include="ViewModels\PullRequestCommitsViewModel.cs" />
+    <Compile Include="ViewModels\PullRequestFilesViewModel.cs" />
+    <Compile Include="ViewModels\PullRequestsViewModel.cs" />
+    <Compile Include="ViewModels\RepositoriesExploreViewModel.cs" />
+    <Compile Include="ViewModels\RepositoriesViewModel.cs" />
+    <Compile Include="ViewModels\MyIssuesViewModel.cs" />
+    <Compile Include="ViewModels\RepositoriesWatchedViewModel.cs" />
+    <Compile Include="ViewModels\RepositoriesStarredViewModel.cs" />
+    <Compile Include="ViewModels\EventsViewModel.cs" />
+    <Compile Include="ViewModels\NewsViewModel.cs" />
+    <Compile Include="ViewControllers\UserFollowersViewController.cs" />
+    <Compile Include="ViewModels\StargazersViewModel.cs" />
+    <Compile Include="ViewControllers\RepositoriesStarredViewController.cs" />
+    <Compile Include="ViewControllers\StargazersViewModel.cs" />
+    <Compile Include="ViewControllers\UserRepositoriesViewController.cs" />
+    <Compile Include="ViewControllers\OrganizationRepositoriesViewController.cs" />
+    <Compile Include="ViewModels\OrganizationRepositoriesViewModel.cs" />
+    <Compile Include="ViewControllers\UserEventsViewController.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\CodeFramework\CodeFramework\CodeFramework.csproj">
-      <Project>{FECA9DCA-3B0B-4C0E-B7B4-E826C1BFDDB2}</Project>
+      <Project>{E339202F-BCD7-4A0C-AC70-992465A51C3F}</Project>
       <Name>CodeFramework</Name>
     </ProjectReference>
     <ProjectReference Include="..\CodeFramework\MonoTouch.Dialog\MonoTouch.Dialog\MonoTouch.Dialog.csproj">
@@ -423,5 +431,6 @@
   <ItemGroup>
     <Folder Include="Images\Gist\" />
     <Folder Include="ViewModels\" />
+    <Folder Include="ViewModels\Events\" />
   </ItemGroup>
 </Project>

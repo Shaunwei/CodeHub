@@ -2,7 +2,6 @@ using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using CodeFramework.Cells;
 using CodeFramework.Views;
-using CodeFramework.Controllers;
 using CodeHub.ViewControllers;
 
 namespace CodeHub
@@ -16,7 +15,7 @@ namespace CodeHub
 		// class-level declarations
         public new UIWindow Window { get; set; }
 
-		public CodeFramework.Controllers.SlideoutNavigationViewController Slideout { get; set; }
+		public CodeFramework.ViewControllers.SlideoutNavigationViewController Slideout { get; set; }
 
 		// This is the main entry point of the application.
 		static void Main (string[] args)

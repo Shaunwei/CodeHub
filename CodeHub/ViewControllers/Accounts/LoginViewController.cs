@@ -1,6 +1,5 @@
 using System;
 using MonoTouch.UIKit;
-using RedPlum;
 using System.Threading;
 using MonoTouch;
 using CodeHub.Data;

@@ -1,21 +1,22 @@
 using System;
-using CodeFramework.Controllers;
 using CodeHub.Controllers;
 using GitHubSharp.Models;
 using MonoTouch.Dialog;
 using MonoTouch.UIKit;
+using CodeFramework.ViewControllers;
+using CodeHub.ViewModels;
 
 namespace CodeHub.ViewControllers
 {
-    public class PullRequestsViewController : BaseListControllerDrivenViewController, IListView<PullRequestModel>
+    public class PullRequestsViewController : ViewModelCollectionDrivenViewController
     {
         private UISegmentedControl _viewSegment;
         private UIBarButtonItem _segmentBarButton;
 
-        public new PullRequestsController Controller
+        public new PullRequestsViewModel ViewModel
         {
-            get { return (PullRequestsController)base.Controller; }
-            set { base.Controller = value; }
+            get { return (PullRequestsViewModel)base.ViewModel; }
+            set { base.ViewModel = value; }
         }
 
         public PullRequestsViewController(string user, string repo)
@@ -24,12 +25,9 @@ namespace CodeHub.ViewControllers
             Title = "Pull Requests".t();
             SearchPlaceholder = "Search Pull Requests".t();
             NoItemsText = "No Pull Requests".t();
-            Controller = new PullRequestsController(this, user, repo);
-        }
+            ViewModel = new PullRequestsViewModel(user, repo);
 
-        public void Render(ListModel<PullRequestModel> model)
-        {
-            RenderList(model, s => {
+            BindCollection(ViewModel, s => {
                 var sse = new NameTimeStringElement {
                     Name = s.Title,
                     String = s.Body.Replace('\n', ' ').Replace("\r", ""),
@@ -38,7 +36,7 @@ namespace CodeHub.ViewControllers
                     Image = Theme.CurrentTheme.AnonymousUserImage,
                     ImageUri = new Uri(s.User.AvatarUrl)
                 };
-                sse.Tapped += () => NavigationController.PushViewController(new PullRequestViewController(Controller.User, Controller.Repo, s.Number), true);
+                sse.Tapped += () => NavigationController.PushViewController(new PullRequestViewController(ViewModel.Username, ViewModel.Repository, s.Number), true);
                 return sse;
             });
         }
@@ -72,7 +70,7 @@ namespace CodeHub.ViewControllers
             _viewSegment.ValueChanged -= SegmentValueChanged;
 
             //Select which one is currently selected
-            _viewSegment.SelectedSegment = Controller.Filter.IsOpen ? 0 : 1;
+            _viewSegment.SelectedSegment = ViewModel.Filter.IsOpen ? 0 : 1;
 
             _viewSegment.ValueChanged += SegmentValueChanged;
         }
@@ -81,13 +79,11 @@ namespace CodeHub.ViewControllers
         {
             if (_viewSegment.SelectedSegment == 0)
             {
-                Controller.ApplyFilter(new CodeHub.Filters.Models.PullRequestsFilterModel { IsOpen = true }, true, false);
-                Controller.Update(false);
+                ViewModel.ApplyFilter(new CodeHub.Filters.Models.PullRequestsFilterModel { IsOpen = true }, true);
             }
             else if (_viewSegment.SelectedSegment == 1)
             {
-                Controller.ApplyFilter(new CodeHub.Filters.Models.PullRequestsFilterModel { IsOpen = false }, true, false);
-                Controller.Update(false);
+                ViewModel.ApplyFilter(new CodeHub.Filters.Models.PullRequestsFilterModel { IsOpen = false }, true);
             }
         }
 

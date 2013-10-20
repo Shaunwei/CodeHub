@@ -4,7 +4,7 @@ using MonoTouch.Foundation;
 using GitHubSharp.Models;
 using System.Collections.Generic;
 using System.Linq;
-using CodeFramework.Controllers;
+using CodeFramework.ViewControllers;
 
 namespace CodeHub.ViewControllers
 {
@@ -87,8 +87,7 @@ namespace CodeHub.ViewControllers
         private void ShowCommentComposer(int line)
         {
             var composer = new Composer();
-            composer.NewComment(this, () => {
-                var text = composer.Text;
+            composer.NewComment(this, (text) => {
                 composer.DoWork(() => {
                     var c = Application.Client.Execute(Application.Client.Users[_user].Repositories[_slug].Commits[_branch].Comments.Create(text, _commit.Filename, line)).Data;
 

@@ -4,10 +4,10 @@ using MonoTouch.Foundation;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
-using CodeFramework.Controllers;
 using CodeFramework.Views;
 using CodeFramework.Utils;
 using System.Collections.Generic;
+using CodeFramework.ViewControllers;
 
 namespace CodeHub.ViewControllers
 {
@@ -22,19 +22,22 @@ namespace CodeHub.ViewControllers
 
             root.Add(new Section() {
                 new MenuElement("Profile", () => NavPush(new ProfileViewController(username) { Title = "Profile" }), Images.Person),
-                (_notifications = new MenuElement("Notifications", () => NavPush(new NotificationsViewController()), Images.Notifications) { NotificationNumber = Application.Account.Notifications }),
+                (_notifications = new MenuElement("Notifications", () => NavPush(new NotificationsViewController()), Images.Notifications)),
                 new MenuElement("News", () => NavPush(new NewsViewController()), Images.News),
                 new MenuElement("Issues", () => NavPush(new MyIssuesViewController()), Images.Flag)
             });
 
+            if (Application.Account.Notifications != null)
+                _notifications.NotificationNumber = Application.Account.Notifications.Value;
+
             var eventsSection = new Section() { HeaderView = new MenuSectionView("Events") };
-            eventsSection.Add(new MenuElement(Application.Account.Username, () => NavPush(new EventsViewController(Application.Account.Username)), Images.Event));
+            eventsSection.Add(new MenuElement(Application.Account.Username, () => NavPush(new UserEventsViewController(Application.Account.Username)), Images.Event));
             if (Application.Account.Organizations != null && Application.Account.ShowOrganizationsInEvents)
                 Application.Account.Organizations.ForEach(x => eventsSection.Add(new MenuElement(x.Login, () => NavPush(new OrganizationEventsViewController(username, x.Login)), Images.Event)));
             root.Add(eventsSection);
 
             var repoSection = new Section() { HeaderView = new MenuSectionView("Repositories") };
-            repoSection.Add(new MenuElement("Owned", () => NavPush(new RepositoriesViewController(Application.Account.Username) { Title = "Owned" }), Images.Repo));
+            repoSection.Add(new MenuElement("Owned", () => NavPush(new UserRepositoriesViewController(Application.Account.Username) { Title = "Owned" }), Images.Repo));
             //repoSection.Add(new MenuElement("Watching", () => NavPush(new WatchedRepositoryController(Application.Accounts.ActiveAccount.Username)), Images.RepoFollow));
             repoSection.Add(new MenuElement("Starred", () => NavPush(new RepositoriesStarredViewController()), Images.Star));
             repoSection.Add(new MenuElement("Explore", () => NavPush(new RepositoriesExploreViewController()), Images.Explore));
@@ -90,34 +93,37 @@ namespace CodeHub.ViewControllers
             Transitions.Transition(nav, UIViewAnimationOptions.TransitionFlipFromLeft);
         }
 
-        private bool _extrasLoaded = false;
-        public override void ViewWillAppear(bool animated)
+        public override void ViewDidLoad()
         {
-            base.ViewWillAppear(animated);
+            base.ViewDidLoad();
 
-            if (_extrasLoaded == false)
+            ProfileButton.Uri = new System.Uri(Application.Account.AvatarUrl);
+
+            if (Application.Account.Notifications == null)
             {
-                LoadExtras();
-                _extrasLoaded = true;
+                this.DoWorkNoHud(() =>
+                {
+                    //Don't bother saving the result. This get's cached in memory so there's no reason to save it twice. Just save the number of entires
+                    Application.Account.Notifications = Application.Client.Execute(Application.Client.Notifications.GetAll()).Data.Count;
+
+                    if (_notifications != null)
+                    {
+                        _notifications.NotificationNumber = Application.Account.Notifications.Value;
+                        BeginInvokeOnMainThread(() => Root.Reload(_notifications, UITableViewRowAnimation.None));
+                    }
+                });
+            }
+
+            if (Application.Account.Organizations == null)
+            {
+                this.DoWorkNoHud(() =>
+                {
+                    Application.Account.Organizations = Application.Client.Execute(Application.Client.AuthenticatedUser.GetOrganizations()).Data;
+                    BeginInvokeOnMainThread(() => CreateMenuRoot());
+                });
             }
         }
 
-        private void LoadExtras()
-        {
-            ProfileButton.Uri = new System.Uri(Application.Account.AvatarUrl);
-
-            this.DoWorkNoHud(() => {
-                //Don't bother saving the result. This get's cached in memory so there's no reason to save it twice. Just save the number of entires
-                Application.Account.Notifications = Application.Client.Execute(Application.Client.Notifications.GetAll()).Data.Count;
-                _notifications.NotificationNumber = Application.Account.Notifications;
-                InvokeOnMainThread(() => Root.Reload(_notifications, UITableViewRowAnimation.None));
-            });
-
-            this.DoWorkNoHud(() => {
-                Application.Account.Organizations = Application.Client.Execute(Application.Client.AuthenticatedUser.GetOrganizations()).Data;
-                InvokeOnMainThread(() => CreateMenuRoot());
-            });
-        }
     }
 }
 

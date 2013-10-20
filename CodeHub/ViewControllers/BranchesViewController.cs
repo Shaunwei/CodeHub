@@ -1,8 +1,6 @@
-using CodeHub.Controllers;
-using CodeFramework.Controllers;
-using GitHubSharp.Models;
 using MonoTouch.Dialog;
 using CodeHub.ViewModels;
+using CodeFramework.ViewControllers;
 
 namespace CodeHub.ViewControllers
 {
@@ -21,7 +19,7 @@ namespace CodeHub.ViewControllers
             NoItemsText = "No Branches".t();
             ViewModel = new BranchesViewModel(username, slug);
 
-            BindCollection(ViewModel.Items, () => ViewModel.More, x => {
+            BindCollection(ViewModel, x => x.Items, x => {
                 return new StyledStringElement(x.Name, () => NavigationController.PushViewController(new SourceViewController(ViewModel.Username, ViewModel.Repository, x.Name), true));
             });
         }

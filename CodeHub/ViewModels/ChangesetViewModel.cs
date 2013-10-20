@@ -8,10 +8,9 @@ using System.Collections.Generic;
 
 namespace CodeHub.ViewModels
 {
-    public class ChangesetViewModel : ViewModelBase
+    public class ChangesetViewModel : ViewModel, ILoadableViewModel
     {
-        private CustomObservableCollection<CommitModel> _items;
-        private Task _more;
+        private readonly CollectionViewModel<CommitModel> _commits = new CollectionViewModel<CommitModel>();
 
         public string Username
         {
@@ -24,31 +23,21 @@ namespace CodeHub.ViewModels
             get;
             private set;
         }
+
+        public CollectionViewModel<CommitModel> Commits
+        {
+            get { return _commits; }
+        }
         
-        public CustomObservableCollection<CommitModel> Items
-        {
-            get { return _items; }
-        }
-
-        public Task More
-        {
-            get { return _more; }
-            private set { SetProperty(ref _more, value); }
-        }
-
         public ChangesetViewModel(string username, string repository)
         {
             Username = username;
             Repository = repository;
-            _items = new CustomObservableCollection<CommitModel>();
         }
 
-        public override async Task Load(bool forceDataRefresh)
+        public async Task Load(bool forceDataRefresh)
         {
-            await Task.Run(() => this.RequestModel(GetRequest(), forceDataRefresh, response => {
-                Items.Reset(response.Data);
-                this.CreateMore(response, m => More = m, d => Items.AddRange(d));
-            }));
+            await Commits.SimpleCollectionLoad(GetRequest(), forceDataRefresh);
         }
 
         protected virtual GitHubRequest<List<CommitModel>> GetRequest()

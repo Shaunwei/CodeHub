@@ -1,6 +1,6 @@
 using System;
-using CodeFramework.Controllers;
 using CodeHub.Data;
+using CodeFramework.ViewControllers;
 
 namespace CodeHub.ViewControllers.Accounts
 {

@@ -1,16 +1,18 @@
 using System;
 using MonoTouch.UIKit;
-using CodeFramework.Controllers;
 using MonoTouch;
 using CodeFramework.Utils;
 using CodeHub.Data;
 using GitHubSharp;
 using System.Threading.Tasks;
+using CodeFramework.ViewControllers;
 
 namespace CodeHub.Utils
 {
     public class Login
     {
+        private static string[] Scopes = new [] { "user", "public_repo", "repo" , "notifications" , "gist" };
+
         public static void LoginWithToken(string accessToken)
         {
             var client = GitHubSharp.Client.BasicOAuth(accessToken);
@@ -50,8 +52,8 @@ namespace CodeHub.Utils
 
             //Create the client
             var client = GitHubSharp.Client.BasicOAuth(account.OAuth, account.Domain ?? GitHubSharp.Client.DefaultApi);
-            await ctrl.DoWorkAsync("Logging in...", () => {
-                var userInfo = client.Execute(client.AuthenticatedUser.GetInfo()).Data;
+            await ctrl.DoWorkTest("Logging in...", async () => {
+                var userInfo = (await client.ExecuteAsync(client.AuthenticatedUser.GetInfo())).Data;
                 account.Username = userInfo.Login;
                 account.AvatarUrl = userInfo.AvatarUrl;
             });
@@ -87,9 +89,8 @@ namespace CodeHub.Utils
                 account.Domain = apiUrl;
                 var client = twoFactor == null ? GitHubSharp.Client.Basic(user, pass, apiUrl) : GitHubSharp.Client.BasicTwoFactorAuthentication(user, pass, twoFactor, apiUrl);
 
-                await ctrl.DoWorkAsync("Authenticating...", () => {
-                    var scopes = new [] { "user", "public_repo", "repo" , "notifications" , "gist" };
-                    var auth = client.Execute(client.Authorizations.GetOrCreate("72f4fb74bdba774b759d", "9253ab615f8c00738fff5d1c665ca81e581875cb", new System.Collections.Generic.List<string>(scopes), "CodeHub", null));
+                await ctrl.DoWorkTest("Authenticating...", async () => {
+                    var auth = await client.ExecuteAsync(client.Authorizations.GetOrCreate("72f4fb74bdba774b759d", "9253ab615f8c00738fff5d1c665ca81e581875cb", new System.Collections.Generic.List<string>(Scopes), "CodeHub", null));
                     account.OAuth = auth.Data.Token;
                 });
 

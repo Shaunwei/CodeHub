@@ -1,9 +1,9 @@
-using CodeFramework.Controllers;
 using CodeHub.Controllers;
 using MonoTouch.Dialog;
 using GitHubSharp.Models;
 using System;
 using CodeHub.ViewModels;
+using CodeFramework.ViewControllers;
 
 namespace CodeHub.ViewControllers
 {
@@ -28,15 +28,16 @@ namespace CodeHub.ViewControllers
             DoBinding();
         }
 
-        public ChangesetViewController(string user, string slug, long pullRequestId) : this()
+        public ChangesetViewController(string user, string slug, ulong pullRequestId) : this()
         {
             //Controller = new PullRequestCommitsController(this, user, slug, pullRequestId);
+            throw new InvalidOperationException("SHIT");
             DoBinding();
         }
 
         private void DoBinding()
         {
-            BindCollection(ViewModel.Items, () => ViewModel.More, x => {
+            BindCollection(ViewModel, x => x.Commits, x => {
                 var desc = (x.Commit.Message ?? "").Replace("\n", " ").Trim();
                 string login;
                 var date = DateTime.MinValue;

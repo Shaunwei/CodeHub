@@ -8,10 +8,9 @@ using CodeFramework.Utils;
 
 namespace CodeHub.ViewModels
 {
-    public class BranchesViewModel : ViewModelBase
+    public class BranchesViewModel : ViewModel, ILoadableViewModel
     {
-        private CustomObservableCollection<BranchModel> _items;
-        private Task _more;
+        private readonly CollectionViewModel<BranchModel> _items = new CollectionViewModel<BranchModel>();
 
         public string Username
         {
@@ -25,30 +24,20 @@ namespace CodeHub.ViewModels
             private set;
         }
 
-        public CustomObservableCollection<BranchModel> Items
+        public CollectionViewModel<BranchModel> Items
         {
             get { return _items; }
-        }
-
-        public Task More
-        {
-            get { return _more; }
-            private set { SetProperty(ref _more, value); }
         }
 
         public BranchesViewModel(string username, string repository)
         {
             Username = username;
             Repository = repository;
-            _items = new CustomObservableCollection<BranchModel>();
         }
 
-        public override async Task Load(bool forceDataRefresh)
+        public async Task Load(bool forceDataRefresh)
         {
-            await Task.Run(() => this.RequestModel(Application.Client.Users[Username].Repositories[Repository].GetBranches(), forceDataRefresh, response => {
-                Items.Reset(response.Data);
-                this.CreateMore(response, m => More = m, d => Items.AddRange(d));
-            }));
+            await Items.SimpleCollectionLoad(Application.Client.Users[Username].Repositories[Repository].GetBranches(), forceDataRefresh);
         }
     }
 }

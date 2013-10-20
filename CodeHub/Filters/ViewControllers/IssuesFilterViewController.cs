@@ -1,21 +1,21 @@
-using CodeFramework.Controllers;
 using CodeHub.Filters.Models;
 using MonoTouch.Dialog;
-using CodeFramework.Filters.Controllers;
+using CodeFramework.Filters.ViewControllers;
 using MonoTouch.UIKit;
+using CodeFramework.ViewModels;
 
 namespace CodeHub.Filters.ViewControllers
 {
     public class IssuesFilterViewController : FilterViewController
     {
-        private readonly IFilterController<IssuesFilterModel> _filterController;
+        private readonly IFilterableViewModel<IssuesFilterModel> _filterController;
 
         private TrueFalseElement _open;
         private EntryElement _labels, _mentioned, _creator, _assignee;
         private EnumChoiceElement<IssuesFilterModel.Sort> _sort;
         private TrueFalseElement _asc;
 
-        public IssuesFilterViewController(IFilterController<IssuesFilterModel> filterController)
+        public IssuesFilterViewController(IFilterableViewModel<IssuesFilterModel> filterController)
         {
             _filterController = filterController;
         }

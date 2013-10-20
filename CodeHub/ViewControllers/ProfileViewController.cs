@@ -1,49 +1,47 @@
-using CodeHub.Controllers;
-using CodeFramework.Controllers;
-using MonoTouch.Dialog.Utilities;
-using GitHubSharp.Models;
-using CodeFramework.Views;
 using MonoTouch.Dialog;
+using CodeFramework.ViewControllers;
+using CodeFramework.Views;
+using MonoTouch.Dialog.Utilities;
+using CodeHub.Controllers;
 
 namespace CodeHub.ViewControllers
 {
-    public class ProfileViewController : BaseControllerDrivenViewController, IImageUpdated, IView<UserModel>
+    public class ProfileViewController : ViewModelDrivenViewController, IImageUpdated
     {
         private HeaderView _header;
-        public string Username { get; private set; }
 
-        public new ProfileController Controller
+        public new ProfileViewModel ViewModel
         {
-            get { return (ProfileController)base.Controller; }
-            protected set { base.Controller = value; }
+            get { return (ProfileViewModel)base.ViewModel; }
+            protected set { base.ViewModel = value; }
         }
 
         public ProfileViewController(string username)
         {
             Title = username;
-            Username = username;
-            Controller = new ProfileController(this, username);
-        }
+            ViewModel = new ProfileViewModel(username);
 
-        public void Render(UserModel model)
-        {
-            _header.Subtitle = string.IsNullOrEmpty(model.Name) ? model.Login : model.Name;
-            _header.Image = ImageLoader.DefaultRequestImage(new System.Uri(model.AvatarUrl), this);
-            _header.SetNeedsDisplay();
+            Bind(ViewModel, x => x.User, () => {
+                _header.Subtitle = string.IsNullOrEmpty(ViewModel.User.Name) ? ViewModel.User.Login : ViewModel.User.Name;
+                _header.Image = ImageLoader.DefaultRequestImage(new System.Uri(ViewModel.User.AvatarUrl), this);
+                _header.SetNeedsDisplay();
+            });
         }
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            _header = new HeaderView(View.Bounds.Width) { Title = Username };
+
+            var username = ViewModel.Username;
+            _header = new HeaderView(View.Bounds.Width) { Title = username };
             Root.Add(new Section(_header));
 
-            var followers = new StyledStringElement("Followers".t(), () => NavigationController.PushViewController(new UserFollowersViewController(Username), true), Images.Heart);
-            var following = new StyledStringElement("Following".t(), () => NavigationController.PushViewController(new UserFollowingsViewController(Username), true), Images.Following);
-            var events = new StyledStringElement("Events".t(), () => NavigationController.PushViewController(new EventsViewController(Username), true), Images.Event);
-            var organizations = new StyledStringElement("Organizations".t(), () => NavigationController.PushViewController(new OrganizationsViewController(Username), true), Images.Group);
-            var repos = new StyledStringElement("Repositories".t(), () => NavigationController.PushViewController(new RepositoriesViewController(Username), true), Images.Repo);
-            var gists = new StyledStringElement("Gists", () => NavigationController.PushViewController(new AccountGistsViewController(Username), true), Images.Script);
+            var followers = new StyledStringElement("Followers".t(), () => NavigationController.PushViewController(new UserFollowersViewController(username), true), Images.Heart);
+            var following = new StyledStringElement("Following".t(), () => NavigationController.PushViewController(new UserFollowingsViewController(username), true), Images.Following);
+            var events = new StyledStringElement("Events".t(), () => NavigationController.PushViewController(new UserEventsViewController(username), true), Images.Event);
+            var organizations = new StyledStringElement("Organizations".t(), () => NavigationController.PushViewController(new OrganizationsViewController(username), true), Images.Group);
+            var repos = new StyledStringElement("Repositories".t(), () => NavigationController.PushViewController(new UserRepositoriesViewController(username), true), Images.Repo);
+            var gists = new StyledStringElement("Gists", () => NavigationController.PushViewController(new AccountGistsViewController(username), true), Images.Script);
 
             Root.Add(new [] { new Section { events, organizations, followers, following }, new Section { repos, gists } });
         }

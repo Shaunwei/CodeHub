@@ -66,7 +66,7 @@ namespace CodeHub.Data
         /// </summary>
         /// <value>The notifications.</value>
         [Ignore]
-        public int Notifications { get; set; }
+        public int? Notifications { get; set; }
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Account"/> class.
@@ -79,7 +79,6 @@ namespace CodeHub.Data
             ExpandOrganizations = true;
             ShowRepositoryDescriptionInList = true;
             Organizations = new List<BasicUserModel>();
-            Notifications = 0;
 		}
     }
 }

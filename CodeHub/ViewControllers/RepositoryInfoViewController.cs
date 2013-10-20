@@ -6,105 +6,111 @@ using MonoTouch.Foundation;
 using MonoTouch.Dialog.Utilities;
 using CodeHub.Controllers;
 using CodeFramework.Views;
-using CodeFramework.Controllers;
 using CodeFramework.Elements;
 using System.Threading.Tasks;
+using CodeFramework.ViewControllers;
 
 namespace CodeHub.ViewControllers
 {
-    public class RepositoryInfoViewController : BaseControllerDrivenViewController, IImageUpdated, IView<RepositoryInfoController.ViewModel>
+    public class RepositoryInfoViewController : ViewModelDrivenViewController, IImageUpdated
     {
         private HeaderView _header;
 
-        public string Username { get; private set; }
-
-        public string Slug { get; private set; }
-
-        public new RepositoryInfoController Controller
+        public new RepositoryViewModel ViewModel
         {
-            get { return (RepositoryInfoController)base.Controller; }
-            protected set { base.Controller = value; }
+            get { return (RepositoryViewModel)base.ViewModel; }
+            protected set { base.ViewModel = value; }
+        }
+        
+        public RepositoryInfoViewController(string username, string slug)
+            : this(username, slug, slug)
+        {
         }
 
         public RepositoryInfoViewController(string username, string slug,  string name)
         {
-            Username = username;
-            Slug = slug;
             Title = name;
+            ViewModel = new RepositoryViewModel(username, slug);
 
             _header = new HeaderView(View.Bounds.Width) { Title = name, ShadowImage = false };
 
             NavigationItem.RightBarButtonItem = new UIBarButtonItem(NavigationButton.Create(Theme.CurrentTheme.GearButton, ShowExtraMenu));
             NavigationItem.RightBarButtonItem.Enabled = false;
 
-            Controller = new RepositoryInfoController(this, username, slug);
+            Bind(ViewModel, x => x.Repository, x => {
+                NavigationItem.RightBarButtonItem.Enabled = true;
+                Render(x);
+            });
+
+            Bind(ViewModel, x => x.Readme, () =>  { 
+                // Not very efficient but it'll work for now.
+                if (ViewModel.Repository != null)
+                    Render(ViewModel.Repository);
+            });
         }
 
-        public RepositoryInfoViewController(string username, string slug)
-            : this(username, slug, slug)
-        {
-        }
 
         private void ShowExtraMenu()
         {
-            var repoModel = Controller.Model.RepositoryModel;
+            var repoModel = ViewModel.Repository;;
             var sheet = MonoTouch.Utilities.GetSheet(repoModel.Name);
 
             var pinButton = sheet.AddButton(Application.Account.GetPinnedRepository(repoModel.Owner.Login, repoModel.Name) == null ? "Pin to Slideout Menu".t() : "Unpin from Slideout Menu".t());
-            var starButton = sheet.AddButton(Controller.Model.IsStarred ? "Unstar This Repo".t() : "Star This Repo".t());
-            var watchButton = sheet.AddButton(Controller.Model.IsWatched ? "Unwatch This Repo".t() : "Watch This Repo".t());
+            var starButton = sheet.AddButton(ViewModel.IsStarred ? "Unstar This Repo".t() : "Star This Repo".t());
+            var watchButton = sheet.AddButton(ViewModel.IsWatched ? "Unwatch This Repo".t() : "Watch This Repo".t());
             //var forkButton = sheet.AddButton("Fork Repository".t());
             var showButton = sheet.AddButton("Show in GitHub".t());
             var cancelButton = sheet.AddButton("Cancel".t());
             sheet.CancelButtonIndex = cancelButton;
             sheet.DismissWithClickedButtonIndex(cancelButton, true);
-            sheet.Clicked += (s, e) => {
-                // Pin to menu
-                if (e.ButtonIndex == pinButton)
+            sheet.Clicked += async (s, e) => {
+                try
                 {
-                    //Is it pinned already or not?
-                    var pinnedRepo = Application.Account.GetPinnedRepository(repoModel.Owner.Login, repoModel.Name);
-                    if (pinnedRepo == null)
+                    // Pin to menu
+                    if (e.ButtonIndex == pinButton)
                     {
-                        var imageUrl = repoModel.Fork ? CodeHub.Images.GitHubRepoForkUrl : CodeHub.Images.GitHubRepoUrl;
-                        Application.Account.AddPinnedRepository(repoModel.Owner.Login, repoModel.Name, repoModel.Name, imageUrl.AbsolutePath);
+                        //Is it pinned already or not?
+                        var pinnedRepo = Application.Account.GetPinnedRepository(repoModel.Owner.Login, repoModel.Name);
+                        if (pinnedRepo == null)
+                        {
+                            var imageUrl = repoModel.Fork ? CodeHub.Images.GitHubRepoForkUrl : CodeHub.Images.GitHubRepoUrl;
+                            Application.Account.AddPinnedRepository(repoModel.Owner.Login, repoModel.Name, repoModel.Name, imageUrl.AbsolutePath);
+                        }
+                        else
+                            Application.Account.RemovePinnedRepository(pinnedRepo.Id);
+
+                        //TODO: Remove this stupid thing when Xamarin fixes there shit!!!
+                        await new Task(() => { });
                     }
-                    else
-                        Application.Account.RemovePinnedRepository(pinnedRepo.Id);
+                    // Watch this repo
+                    else if (e.ButtonIndex == starButton)
+                    {
+                        await this.DoWorkTest("Loading...".t(), () => {
+                            return ViewModel.IsStarred ? ViewModel.Unstar() : ViewModel.Star();
+                        });
+                    }
+                    // Watch this repo
+                    else if (e.ButtonIndex == watchButton)
+                    {
+                        await this.DoWorkTest("Loading...".t(), () => {
+                            return ViewModel.IsWatched ? ViewModel.StopWatching() : ViewModel.Watch();
+                        });
+                    }
+                    // Fork this repo
+    //                else if (e.ButtonIndex == forkButton)
+    //                {
+    //                    ForkRepository();
+    //                }
+                    // Show in Bitbucket
+                    else if (e.ButtonIndex == showButton)
+                    {
+                        try { UIApplication.SharedApplication.OpenUrl(new NSUrl(repoModel.HtmlUrl)); } catch { }
+                    }
                 }
-                // Watch this repo
-                else if (e.ButtonIndex == starButton)
+                catch (Exception ex)
                 {
-                    this.DoWork(() => {
-                        if (Controller.Model.IsStarred)
-                            Controller.Unstar();
-                        else
-                            Controller.Star();
-                    }, ex => {
-                        MonoTouch.Utilities.ShowAlert("Error".t(), ex.Message);
-                    });
-                }
-                // Watch this repo
-                else if (e.ButtonIndex == watchButton)
-                {
-                    this.DoWork(() => {
-                        if (Controller.Model.IsWatched)
-                            Controller.StopWatching();
-                        else
-                            Controller.Watch();
-                    }, ex => {
-                        MonoTouch.Utilities.ShowAlert("Error".t(), ex.Message);
-                    });
-                }
-                // Fork this repo
-//                else if (e.ButtonIndex == forkButton)
-//                {
-//                    ForkRepository();
-//                }
-                // Show in Bitbucket
-                else if (e.ButtonIndex == showButton)
-                {
-                    try { UIApplication.SharedApplication.OpenUrl(new NSUrl(repoModel.HtmlUrl)); } catch { }
+                    MonoTouch.Utilities.ShowAlert("Error".t(), ex.Message);
+                    MonoTouch.Utilities.LogException(ex);
                 }
             };
 
@@ -142,9 +148,8 @@ namespace CodeHub.ViewControllers
 //            alert.Show();
 //        }
 
-        public void Render(RepositoryInfoController.ViewModel viewModel)
+        public void Render(RepositoryModel model)
         {
-            var model = viewModel.RepositoryModel;
             Title = model.Name;
             var root = new RootElement(Title) { UnevenRows = true };
             _header.Subtitle = "Updated ".t() + (model.UpdatedAt).ToDaysAgo();
@@ -203,7 +208,7 @@ namespace CodeHub.ViewControllers
             owner.Tapped += () => NavigationController.PushViewController(new ProfileViewController(model.Owner.Login), true);
             sec1.Add(owner);
             var followers = new StyledStringElement("Stargazers".t(), "" + model.Watchers) { Image = Images.Star, Accessory = UITableViewCellAccessory.DisclosureIndicator };
-            followers.Tapped += () => NavigationController.PushViewController(new RepoFollowersViewController(model.Owner.Login, model.Name), true);
+            followers.Tapped += () => NavigationController.PushViewController(new StargazersViewController(model.Owner.Login, model.Name), true);
             sec1.Add(followers);
 
 
@@ -214,11 +219,8 @@ namespace CodeHub.ViewControllers
             if (model.HasIssues)
                 sec2.Add(new StyledStringElement("Issues".t(), () => NavigationController.PushViewController(new IssuesViewController(model.Owner.Login, model.Name), true), Images.Flag));
 
-            if (viewModel.Readme != null)
+            if (ViewModel.Readme != null)
                 sec2.Add(new StyledStringElement("Readme".t(), () => NavigationController.PushViewController(new ReadmeViewController(model.Owner.Login, model.Name), true), Images.File));
-
-            //if (model.HasWiki)
-            //    sec2.Add(new StyledStringElement("Wiki".t(), () => NavigationController.PushViewController(new WikiViewController(model.Owner.Login, model.Name), true), Images.Pencil));
 
             var sec3 = new Section
             {
@@ -237,7 +239,6 @@ namespace CodeHub.ViewControllers
             }
 
             Root = root;
-            NavigationItem.RightBarButtonItem.Enabled = true;
         }
 
         public void UpdatedImage(Uri uri)

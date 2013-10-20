@@ -1,15 +1,11 @@
-using System;
-using CodeHub.Controllers;
-using GitHubSharp.Models;
-using MonoTouch.Dialog;
-using CodeHub.Data;
-using MonoTouch.UIKit;
-using MonoTouch;
-using CodeFramework.Controllers;
+using CodeFramework.ViewControllers;
 using CodeFramework.Views;
-using CodeFramework.Elements;
-using MonoTouch.Foundation;
+using MonoTouch.UIKit;
 using CodeHub.ViewModels;
+using GitHubSharp.Models;
+using MonoTouch.Foundation;
+using System;
+using MonoTouch.Dialog;
 
 namespace CodeHub.ViewControllers
 {
@@ -46,12 +42,11 @@ namespace CodeHub.ViewControllers
             _userButton.Enabled = false;
             _shareButton.Enabled = false;
 
-            this.Bind(ViewModel, x => x.Gist, () => {
-                _shareButton.Enabled = _userButton.Enabled = ViewModel.Gist != null;
-                RenderGist();
+            this.Bind(ViewModel, x => x.Gist, RenderGist);
+            this.Bind(ViewModel, x => x.IsStarred, isStarred => {
+                _starButton.SetImage(isStarred ? Images.Gist.StarHighlighted : Images.Gist.Star, UIControlState.Normal);
+                _starButton.SetNeedsDisplay();
             });
-
-            this.Bind(ViewModel, x => x.IsStarred, UpdateStar);
         }
 
         public GistInfoViewController(GistModel model)
@@ -109,15 +104,9 @@ namespace CodeHub.ViewControllers
             }
         }
 
-        private void UpdateStar()
+        public void RenderGist(GistModel model)
         {
-            _starButton.SetImage(ViewModel.IsStarred ? Images.Gist.StarHighlighted : Images.Gist.Star, UIControlState.Normal);
-            _starButton.SetNeedsDisplay();
-        }
-
-        public void RenderGist()
-        {
-            var model = this.ViewModel.Gist;
+            _shareButton.Enabled = _userButton.Enabled = model != null;
             var root = new RootElement(Title) { UnevenRows = true };
             var sec = new Section();
             _header.Subtitle = "Updated " + model.UpdatedAt.ToDaysAgo();
@@ -164,11 +153,11 @@ namespace CodeHub.ViewControllers
             Root = root;
         }
 
-        public override void ViewDidAppear(bool animated)
+        public override void ViewWillAppear(bool animated)
         {
             if (ToolbarItems != null)
-                NavigationController.SetToolbarHidden(IsSearching, animated);
-            base.ViewDidAppear(animated);
+                NavigationController.SetToolbarHidden(false, animated);
+            base.ViewWillAppear(animated);
         }
 
         public override void ViewWillDisappear(bool animated)

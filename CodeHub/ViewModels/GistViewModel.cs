@@ -5,7 +5,7 @@ using CodeFramework.ViewModels;
 
 namespace CodeHub.ViewModels
 {
-    public class GistViewModel : ViewModelBase
+    public class GistViewModel : ViewModel, ILoadableViewModel
     {
         private readonly string _id;
         private GistModel _gist;
@@ -35,7 +35,7 @@ namespace CodeHub.ViewModels
             IsStarred = value;
         }
 
-        public override async Task Load(bool forceDataRefresh)
+        public async Task Load(bool forceDataRefresh)
         {
             var t1 = Task.Run(() => this.RequestModel(Application.Client.Gists[_id].Get(), forceDataRefresh, response => {
                 Gist = response.Data;
@@ -48,9 +48,9 @@ namespace CodeHub.ViewModels
                         IsStarred = response.Data;
                     });
                 }
-                catch (Exception e)
+                catch
                 {
-
+                    // Don't care...
                 }
             }).Start();
 

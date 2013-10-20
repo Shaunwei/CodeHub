@@ -3,7 +3,6 @@ using GitHubSharp.Models;
 using MonoTouch.Dialog;
 using System.Linq;
 using CodeHub.Controllers;
-using CodeFramework.Controllers;
 using CodeFramework.Views;
 using CodeFramework.Elements;
 using System.Collections.Generic;
@@ -11,42 +10,40 @@ using MonoTouch.UIKit;
 using MonoTouch;
 using MonoTouch.Foundation;
 using CodeHub.ViewControllers;
+using CodeFramework.ViewControllers;
+using CodeHub.ViewModels;
 
 namespace CodeHub.ViewControllers
 {
-    public class ChangesetInfoViewController : BaseControllerDrivenViewController, IView<ChangesetInfoController.ViewModel>
+    public class ChangesetInfoViewController : ViewModelDrivenViewController
     {
-        public string Node { get; private set; }
-        
-        public string User { get; private set; }
-        
-        public string Slug { get; private set; }
-        
-        public CodeHub.Utils.RepositoryIdentifier Repo { get; set; }
-
-        public new ChangesetInfoController Controller 
-        {
-            get { return (ChangesetInfoController)base.Controller; }
-            protected set { base.Controller = value; }
-        }
-        
         private readonly HeaderView _header;
         private readonly UISegmentedControl _viewSegment;
         private readonly UIBarButtonItem _segmentBarButton;
-        
-        public ChangesetInfoViewController(string user, string slug, string node)
+        private readonly Section _commentsSection;
+
+        public CodeHub.Utils.RepositoryIdentifier Repo { get; set; }
+
+        public new ChangesetInfoViewModel ViewModel 
         {
-            Node = node;
-            User = user;
-            Slug = slug;
+            get { return (ChangesetInfoViewModel)base.ViewModel; }
+            protected set { base.ViewModel = value; }
+        }
+        
+        public ChangesetInfoViewController(string user, string repository, string node)
+        {
             Title = "Commit".t();
             Root.UnevenRows = true;
-            Controller = new ChangesetInfoController(this, user, slug, node);
+            ViewModel = new ChangesetInfoViewModel(user, repository, node);
             
             _header = new HeaderView(0f) { Title = "Commit: ".t() + node.Substring(0, node.Length > 10 ? 10 : node.Length) };
             _viewSegment = new UISegmentedControl(new string[] { "Changes".t(), "Comments".t() });
             _viewSegment.ControlStyle = UISegmentedControlStyle.Bar;
             _segmentBarButton = new UIBarButtonItem(_viewSegment);
+            _commentsSection = new Section();
+
+            Bind(ViewModel, x => x.Changeset, Render);
+            BindCollection(ViewModel, x => x.Comments, (a) => Render());
         }
 
         public override void ViewDidLoad()
@@ -57,18 +54,22 @@ namespace CodeHub.ViewControllers
             BeginInvokeOnMainThread(delegate {
                 _viewSegment.SelectedSegment = 1;
                 _viewSegment.SelectedSegment = 0;
-                _viewSegment.ValueChanged += (sender, e) => Controller.Refresh();
+                _viewSegment.ValueChanged += (sender, e) => Render();
             });
 
             _segmentBarButton.Width = View.Frame.Width - 10f;
             ToolbarItems = new [] { new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace), _segmentBarButton, new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace) };
         }
 
-        public void Render(ChangesetInfoController.ViewModel model)
+        public void Render()
         {
+            var commitModel = ViewModel.Changeset;
+            if (commitModel == null)
+                return;
+
             var root = new RootElement(Title) { UnevenRows = Root.UnevenRows };
 
-            _header.Subtitle = "Commited ".t() + (model.Changeset.Commit.Committer.Date).ToDaysAgo();
+            _header.Subtitle = "Commited ".t() + (commitModel.Commit.Committer.Date).ToDaysAgo();
             var headerSection = new Section(_header);
             root.Add(headerSection);
 
@@ -76,12 +77,12 @@ namespace CodeHub.ViewControllers
             root.Add(detailSection);
 
             var user = "Unknown";
-            if (model.Changeset.Author != null)
-                user = model.Changeset.Author.Login;
-            if (model.Changeset.Commit.Author != null)
-                user = model.Changeset.Commit.Author.Name;
+            if (commitModel.Author != null)
+                user = commitModel.Author.Login;
+            if (commitModel.Commit.Author != null)
+                user = commitModel.Commit.Author.Name;
 
-            detailSection.Add(new MultilinedElement(user, model.Changeset.Commit.Message)
+            detailSection.Add(new MultilinedElement(user, commitModel.Commit.Message)
             {
                 CaptionColor = Theme.CurrentTheme.MainTextColor,
                 ValueColor = Theme.CurrentTheme.MainTextColor,
@@ -104,15 +105,15 @@ namespace CodeHub.ViewControllers
             if (_viewSegment.SelectedSegment == 0)
             {
                 var fileSection = new Section();
-                model.Changeset.Files.ForEach(x => {
+                commitModel.Files.ForEach(x => {
                     var file = x.Filename.Substring(x.Filename.LastIndexOf('/') + 1);
                     var sse = new ChangesetElement(file, x.Status, x.Additions, x.Deletions);
                     sse.Tapped += () => {
                         string parent = null;
-                        if (model.Changeset.Parents != null && model.Changeset.Parents.Count > 0)
-                            parent = model.Changeset.Parents[0].Sha;
+                        if (commitModel.Parents != null && commitModel.Parents.Count > 0)
+                            parent = commitModel.Parents[0].Sha;
 
-                        NavigationController.PushViewController(new ChangesetDiffViewController(User, Slug, model.Changeset.Sha, x) { Comments = Controller.Model.Comments }, true);
+                        NavigationController.PushViewController(new ChangesetDiffViewController(ViewModel.User, ViewModel.Repository, commitModel.Sha, x) { Comments = ViewModel.Comments.Items.ToList() }, true);
                     };
                     fileSection.Add(sse);
                 });
@@ -123,7 +124,7 @@ namespace CodeHub.ViewControllers
             else if (_viewSegment.SelectedSegment == 1)
             {
                 var commentSection = new Section();
-                foreach (var comment in model.Comments)
+                foreach (var comment in ViewModel.Comments)
                 {
                     //The path should be empty to indicate it's a comment on the entire commit, not a specific file
                     if (!string.IsNullOrEmpty(comment.Path))
@@ -153,16 +154,22 @@ namespace CodeHub.ViewControllers
         void AddCommentTapped()
         {
             var composer = new Composer();
-            composer.NewComment(this, () => {
-                var text = composer.Text;
-
-                composer.DoWork(() => {
-                    Controller.AddComment(text);
-                    InvokeOnMainThread(() => composer.CloseComposer());
-                }, ex => {
-                    Utilities.ShowAlert("Unable to post comment!", ex.Message);
+            composer.NewComment(this, (text) => {
+                try
+                {
+                    composer.DoWorkTest("Commenting...".t(), async () => {
+                        await ViewModel.AddComment(text);
+                        composer.CloseComposer();
+                    });
+                }
+                catch (Exception e)
+                {
+                    Utilities.ShowAlert("Unable to post comment!", e.Message);
+                }
+                finally
+                {
                     composer.EnableSendButton = true;
-                });
+                }
             });
         }
 

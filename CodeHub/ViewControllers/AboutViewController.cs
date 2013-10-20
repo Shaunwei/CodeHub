@@ -2,8 +2,8 @@ using System;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using MonoTouch.Dialog;
-using CodeFramework.Controllers;
 using CodeFramework.Elements;
+using CodeFramework.ViewControllers;
 
 namespace CodeHub.ViewControllers
 {

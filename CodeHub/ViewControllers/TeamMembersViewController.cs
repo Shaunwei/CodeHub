@@ -4,25 +4,28 @@ using System.Collections.Generic;
 using MonoTouch.UIKit;
 using System.Linq;
 using CodeHub.Controllers;
-using CodeFramework.Controllers;
 using CodeFramework.Elements;
-using System.Threading.Tasks;
+using CodeFramework.ViewControllers;
+using CodeHub.ViewModels;
 
 namespace CodeHub.ViewControllers
 {
-    public class TeamMembersViewController : BaseListControllerDrivenViewController, IListView<BasicUserModel>
+    public class TeamMembersViewController : ViewModelCollectionDrivenViewController
     {
-		public TeamMembersViewController(string name, long id) 
+        public new TeamMembersViewModel ViewModel
+        {
+            get { return (TeamMembersViewModel)base.ViewModel; }
+            set { base.ViewModel = value; }
+        }
+
+		public TeamMembersViewController(string name, ulong id) 
         {
 			Title = name;
             SearchPlaceholder = "Search Members".t();
             NoItemsText = "No Members".t();
-            Controller = new TeamMembersController(this, id);
-        }
+            ViewModel = new TeamMembersViewModel(id);
 
-		public void Render(ListModel<BasicUserModel> model)
-        {
-            RenderList(model, s => {
+            BindCollection(ViewModel, s => {
                 StyledStringElement sse = new UserElement(s.Login, string.Empty, string.Empty, s.AvatarUrl);
                 sse.Tapped += () => NavigationController.PushViewController(new ProfileViewController(s.Login), true);
                 return sse;

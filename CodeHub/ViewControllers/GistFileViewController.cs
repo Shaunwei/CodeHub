@@ -1,7 +1,7 @@
 using GitHubSharp.Models;
-using CodeFramework.Controllers;
 using MonoTouch.UIKit;
 using CodeFramework.Views;
+using CodeFramework.ViewControllers;
 
 namespace CodeHub.ViewControllers
 {

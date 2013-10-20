@@ -1,7 +1,6 @@
 using CodeHub.Controllers;
 using MonoTouch.UIKit;
 using CodeFramework.Views;
-using CodeFramework.Controllers;
 using GitHubSharp.Models;
 using CodeFramework.Elements;
 using CodeHub.Filters.Models;
@@ -15,19 +14,18 @@ namespace CodeHub.ViewControllers
         private UISegmentedControl _viewSegment;
         private UIBarButtonItem _segmentBarButton;
 
-        public new IssuesController Controller
+        public new IssuesViewModel ViewModel
         {
-            get { return (IssuesController)base.Controller; }
-            protected set { base.Controller = value; }
+            get { return (IssuesViewModel)base.ViewModel; }
+            protected set { base.ViewModel = value; }
         }
 
         public IssuesViewController(string user, string slug)
+            : base(new IssuesViewModel(user, slug))
         {
-            Controller = new IssuesController(this, user, slug);
-
             NavigationItem.RightBarButtonItem = new UIBarButtonItem(NavigationButton.Create(Theme.CurrentTheme.AddButton, () => {
-                var b = new IssueEditViewController(Controller.User, Controller.Slug) {
-                    Success = (issue) => Controller.CreateIssue(issue)
+                var b = new IssueEditViewController(ViewModel.User, ViewModel.Slug) {
+                    Success = (issue) => ViewModel.CreateIssue(issue)
                 };
                 NavigationController.PushViewController(b, true);
             }));
@@ -61,11 +59,11 @@ namespace CodeHub.ViewControllers
             _viewSegment.ValueChanged -= SegmentValueChanged;
 
             //Select which one is currently selected
-            if (Controller.Filter.Equals(IssuesFilterModel.CreateOpenFilter()))
+            if (ViewModel.Filter.Equals(IssuesFilterModel.CreateOpenFilter()))
                 _viewSegment.SelectedSegment = 0;
-            else if (Controller.Filter.Equals(IssuesFilterModel.CreateClosedFilter()))
+            else if (ViewModel.Filter.Equals(IssuesFilterModel.CreateClosedFilter()))
                 _viewSegment.SelectedSegment = 1;
-            else if (Controller.Filter.Equals(IssuesFilterModel.CreateMineFilter(Application.Account.Username)))
+            else if (ViewModel.Filter.Equals(IssuesFilterModel.CreateMineFilter(Application.Account.Username)))
                 _viewSegment.SelectedSegment = 2;
             else
                 _viewSegment.SelectedSegment = 3;
@@ -77,19 +75,19 @@ namespace CodeHub.ViewControllers
         {
             if (_viewSegment.SelectedSegment == 0)
             {
-                Controller.ApplyFilter(IssuesFilterModel.CreateOpenFilter(), true, false);
+                ViewModel.ApplyFilter(IssuesFilterModel.CreateOpenFilter(), true);
             }
             else if (_viewSegment.SelectedSegment == 1)
             {
-                Controller.ApplyFilter(IssuesFilterModel.CreateClosedFilter(), true, false);
+                ViewModel.ApplyFilter(IssuesFilterModel.CreateClosedFilter(), true);
             }
             else if (_viewSegment.SelectedSegment == 2)
             {
-                Controller.ApplyFilter(IssuesFilterModel.CreateMineFilter(Application.Account.Username), true, false);
+                ViewModel.ApplyFilter(IssuesFilterModel.CreateMineFilter(Application.Account.Username), true);
             }
             else if (_viewSegment.SelectedSegment == 3)
             {
-                var filter = new IssuesFilterViewController(Controller);
+                var filter = new IssuesFilterViewController(ViewModel);
                 var nav = new UINavigationController(filter);
                 PresentViewController(nav, true, null);
             }
@@ -106,9 +104,9 @@ namespace CodeHub.ViewControllers
         {
             //If null then it's been deleted!
             if (changedModel == null)
-                Controller.DeleteIssue(oldModel);
+                ViewModel.Items.Remove(oldModel);
             else
-                Controller.UpdateIssue(changedModel);
+                ViewModel.UpdateIssue(changedModel);
         }
     }
 }

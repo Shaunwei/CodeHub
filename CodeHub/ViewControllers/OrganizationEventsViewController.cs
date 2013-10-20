@@ -1,13 +1,13 @@
 using System;
-using CodeHub.Controllers;
+using CodeHub.ViewModels;
 
 namespace CodeHub.ViewControllers
 {
     public class OrganizationEventsViewController : BaseEventsViewController
     {
         public OrganizationEventsViewController(string userName, string orgName)
+            : base(new OrganizationEventsViewModel(userName, orgName))
         {
-            Controller = new OrganizationEventsController(this, userName, orgName);
         }
     }
 }

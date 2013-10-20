@@ -4,49 +4,56 @@ using MonoTouch.UIKit;
 using System.Collections.Generic;
 using MonoTouch;
 using CodeHub.Controllers;
-using CodeFramework.Controllers;
 using CodeFramework.Elements;
 using MonoTouch.Foundation;
+using CodeFramework.ViewControllers;
+using CodeHub.ViewModels;
 
 namespace CodeHub.ViewControllers
 {
-    public abstract class BaseEventsViewController : BaseListControllerDrivenViewController, IListView<EventModel>
+    public abstract class BaseEventsViewController : ViewModelCollectionDrivenViewController
     {
         public bool ReportRepository { get; set; }
 
-        protected BaseEventsViewController()
+        public new EventsViewModel ViewModel
+        {
+            get { return (EventsViewModel)base.ViewModel; }
+            protected set { base.ViewModel = value; }
+        }
+
+        protected BaseEventsViewController(EventsViewModel viewModel)
         {
             Title = "Events".t();
             Root.UnevenRows = true;
             ReportRepository = true;
             EnableSearch = false;
+            ViewModel = viewModel;
+            BindCollection(ViewModel, CreateElement);
         }
 
-        public void Render(ListModel<EventModel> model)
+        private MonoTouch.Dialog.Element CreateElement(EventModel e)
         {
-            RenderList(model, e => {
-                try
-                {
-                    UIImage small;
-                    Action elementAction;
-                    var hello = CreateDescription(e, out small, out elementAction);
-                    if (hello == null)
-                        return null;
-
-                    //Get the user
-                    var username = e.Actor != null ? e.Actor.Login : null;
-                    var avatar = e.Actor != null ? e.Actor.AvatarUrl : null;
-                    var newsEl = new NewsFeedElement(username, avatar, (e.CreatedAt), hello, small);
-                    if (elementAction != null)
-                        newsEl.Tapped += () => elementAction();
-                    return newsEl;
-                }
-                catch (Exception ex)
-                {
-                    Utilities.LogException("Unable to add event", ex);
+            try
+            {
+                UIImage small;
+                Action elementAction;
+                var hello = CreateDescription(e, out small, out elementAction);
+                if (hello == null)
                     return null;
-                }
-            });
+
+                //Get the user
+                var username = e.Actor != null ? e.Actor.Login : null;
+                var avatar = e.Actor != null ? e.Actor.AvatarUrl : null;
+                var newsEl = new NewsFeedElement(username, avatar, (e.CreatedAt), hello, small);
+                if (elementAction != null)
+                    newsEl.Tapped += () => elementAction();
+                return newsEl;
+            }
+            catch (Exception ex)
+            {
+                Utilities.LogException("Unable to add event", ex);
+                return null;
+            }
         }
 
 

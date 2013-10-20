@@ -1,51 +1,22 @@
+using CodeFramework.ViewControllers;
 using MonoTouch.Dialog;
-using MonoTouch.UIKit;
 using GitHubSharp.Models;
-using System.Linq;
-using System.Collections.Generic;
-using CodeHub.Controllers;
-using CodeFramework.Controllers;
 using CodeFramework.Elements;
-using System.Threading.Tasks;
 
 namespace CodeHub.ViewControllers
 {
-    public abstract class FollowersViewController : BaseListControllerDrivenViewController, IListView<BasicUserModel>
+    public abstract class FollowersViewController : ViewModelCollectionDrivenViewController
     {
         protected FollowersViewController()
 		{
 		}
 
-        public void Render(ListModel<BasicUserModel> model)
+        protected Element CreateElement(BasicUserModel model)
         {
-            RenderList(model, s => {
-                StyledStringElement sse = new UserElement(s.Login, string.Empty, string.Empty, s.AvatarUrl);
-                sse.Tapped += () => NavigationController.PushViewController(new ProfileViewController(s.Login), true);
-                return sse;
-            });
+            StyledStringElement sse = new UserElement(model.Login, string.Empty, string.Empty, model.AvatarUrl);
+            sse.Tapped += () => NavigationController.PushViewController(new ProfileViewController(model.Login), true);
+            return sse;
         }
 	}
-
-    public class UserFollowersViewController : FollowersViewController
-    {
-        public UserFollowersViewController(string username)
-        {
-            Controller = new UserFollowersController(this, username);
-            Title = "Followers".t();
-            SearchPlaceholder = "Search Followers".t();
-            NoItemsText = "No Followers".t();
-        }
-    }
-
-    public class RepoFollowersViewController : FollowersViewController
-    {
-        public RepoFollowersViewController(string username, string slug)
-        {
-            Controller = new RepositoryStarredController(this, username, slug);
-            Title = "Stargazers".t();
-            SearchPlaceholder = "Search Stargazers".t();
-            NoItemsText = "No Stargazers".t();
-        }
-    }
 }
 

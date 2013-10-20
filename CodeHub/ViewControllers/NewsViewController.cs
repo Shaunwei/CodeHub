@@ -1,14 +1,14 @@
 using CodeHub.Controllers;
+using CodeHub.ViewModels;
 
 namespace CodeHub.ViewControllers
 {
-    public class NewsViewController : EventsViewController
+    public class NewsViewController : BaseEventsViewController
     {
         public NewsViewController()
-            : base(string.Empty)
+            : base(new NewsViewModel())
         {
             Title = "News".t();
-            Controller = new NewsController(this);
         }
     }
 }

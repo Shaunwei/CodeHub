@@ -5,10 +5,10 @@ using MonoTouch.UIKit;
 using MonoTouch.Dialog;
 using MonoTouch.Foundation;
 using System.Collections.Generic;
-using CodeFramework.Controllers;
 using CodeFramework.Elements;
 using CodeFramework.Views;
 using GitHubSharp.Models;
+using CodeFramework.ViewControllers;
 
 namespace CodeHub.ViewControllers
 {
@@ -45,51 +45,59 @@ namespace CodeHub.ViewControllers
             _selectedLabels = new List<LabelModel>();
         }
 
-        private void SaveIssue()
+        private async void SaveIssue()
         {
-            //Stop any editing!
-            View.EndEditing(true);
-
-            //Check the required fields
-            if (string.IsNullOrEmpty(_title.Value))
+            try
             {
-                Utilities.ShowAlert("Missing field!", "You must enter a title for this issue.");
-                return;
-            }
+                //Stop any editing!
+                View.EndEditing(true);
 
-            NavigationItem.RightBarButtonItem.Enabled = false;
+                //Check the required fields
+                if (string.IsNullOrEmpty(_title.Value))
+                {
+                    Utilities.ShowAlert("Missing field!", "You must enter a title for this issue.");
+                    return;
+                }
 
-            var title = _title.Value;
-            var content = _content.Value;
-            var assignedTo = _assignedTo.Value;
-            var state = _state.Value ? "open" : "closed";
-            int? milestone = null;
-            if (_selectedMilestone != null)
-                milestone = _selectedMilestone.Number;
-            string[] labels = _selectedLabels.Select(x => x.Name).ToArray();
+                IssueModel model = null;
+                NavigationItem.RightBarButtonItem.Enabled = false;
 
-            this.DoWork(() => {
-                IssueModel model;
+                var title = _title.Value;
+                var content = _content.Value;
+                var assignedTo = _assignedTo.Value;
+                if (assignedTo.Equals(Unassigned))
+                    assignedTo = null;
+
+                var state = _state.Value ? "open" : "closed";
+                uint? milestone = null;
+                if (_selectedMilestone != null)
+                    milestone = _selectedMilestone.Number;
+                string[] labels = null;
+                    if (_selectedLabels.Count > 0)
+                        labels = _selectedLabels.Select(x => x.Name).ToArray();
 
                 //New
-                if (ExistingIssue == null)
-                    model = Application.Client.Execute(Application.Client.Users[Username].Repositories[RepoSlug].Issues.Create(title, content, assignedTo, milestone, labels)).Data;
-                else
-                    model = Application.Client.Execute(Application.Client.Users[Username].Repositories[RepoSlug].Issues[ExistingIssue.Number].Update(title, content, state, assignedTo, milestone, labels)).Data; 
-
-                InvokeOnMainThread(() => {
-                    if (Success != null)
-                        Success(model);
-
-                    if (NavigationController != null)
-                        NavigationController.PopViewControllerAnimated(true);
+                await this.DoWorkTest("Saving...", async () => {
+                    var response = (ExistingIssue == null) ? 
+                        await Application.Client.ExecuteAsync(Application.Client.Users[Username].Repositories[RepoSlug].Issues.Create(title, content, assignedTo, milestone, labels)) :
+                        await Application.Client.ExecuteAsync(Application.Client.Users[Username].Repositories[RepoSlug].Issues[ExistingIssue.Number].Update(title, content, state, assignedTo, milestone, labels)); 
+                    model = response.Data;
                 });
-            },
-            ex => Utilities.ShowAlert("Unable to save issue!", ex.Message),
-            () =>
+
+                if (Success != null)
+                    Success(model);
+
+                if (NavigationController != null)
+                    NavigationController.PopViewControllerAnimated(true);
+            }
+            catch (Exception e)
+            {
+                Utilities.ShowAlert("Unable to save issue!", e.Message);
+            }
+            finally
             {
                 NavigationItem.RightBarButtonItem.Enabled = true;
-            });
+            }
         }
 
         public override void ViewDidLoad()
@@ -137,8 +145,7 @@ namespace CodeHub.ViewControllers
             _content.Tapped += () =>
             {
                 var composer = new Composer { Title = "Issue Description", Text = _content.Value, ActionButtonText = "Save" };
-                composer.NewComment(this, () => {
-                    var text = composer.Text;
+                composer.NewComment(this, (text) => {
                     _content.Value = text;
                     composer.CloseComposer();
                 });

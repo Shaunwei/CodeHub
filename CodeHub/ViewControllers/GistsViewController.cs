@@ -1,32 +1,33 @@
 using System;
-using CodeFramework.Controllers;
 using CodeHub.Controllers;
 using GitHubSharp.Models;
 using MonoTouch.Dialog;
+using CodeFramework.ViewControllers;
 
 namespace CodeHub.ViewControllers
 {
     public class PublicGistsViewController : GistsViewController
     {
         public PublicGistsViewController()
+            : base(new PublicGistsViewModel())
         {
             Title = "Public Gists".t();
-            Controller = new PublicGistsController(this);
         }
     }
 
     public class StarredGistsViewController : GistsViewController
     {
         public StarredGistsViewController()
+            : base(new StarredGistsViewModel())
         {
             Title = "Starred Gists".t();
-            Controller = new StarredGistsController(this);
         }
     }
 
     public class AccountGistsViewController : GistsViewController
     {
         public AccountGistsViewController(string username)
+            : base(new AccountGistsViewModel(username))
         {
             if (username != null)
             {
@@ -44,23 +45,19 @@ namespace CodeHub.ViewControllers
             {
                 Title = "Gists";
             }
-
-            Controller = new AccountGistsController(this, username);
         }
     }
 
 
-    public abstract class GistsViewController : BaseListControllerDrivenViewController, IListView<GistModel>
+    public abstract class GistsViewController : ViewModelCollectionDrivenViewController
     {
-        protected GistsViewController()
+        protected GistsViewController(GistsViewModel viewModel)
         {
             SearchPlaceholder = "Search Gists".t();
             NoItemsText = "No Gists".t();
-        }
+            ViewModel = viewModel;
 
-        public void Render(ListModel<GistModel> model)
-        {
-            RenderList(model, x => {
+            BindCollection(viewModel, x => {
                 var str = string.IsNullOrEmpty(x.Description) ? "Gist " + x.Id : x.Description;
                 var sse = new NameTimeStringElement() { 
                     Time = x.UpdatedAt.ToDaysAgo(), 
@@ -75,7 +72,6 @@ namespace CodeHub.ViewControllers
                 return sse;
             });
         }
-
     }
 }
 

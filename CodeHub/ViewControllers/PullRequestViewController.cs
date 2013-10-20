@@ -1,5 +1,4 @@
 using System;
-using CodeFramework.Controllers;
 using CodeHub.Controllers;
 using CodeFramework.Views;
 using MonoTouch.Dialog;
@@ -7,42 +6,50 @@ using MonoTouch.UIKit;
 using MonoTouch;
 using System.Linq;
 using CodeFramework.Elements;
+using CodeFramework.ViewControllers;
+using CodeHub.ViewModels;
 
 namespace CodeHub.ViewControllers
 {
-    public class PullRequestViewController : BaseControllerDrivenViewController, IView<PullRequestController.ViewModel>
+    public class PullRequestViewController : ViewModelCollectionDrivenViewController
     {
         private readonly HeaderView _header;
         private readonly SplitElement _split1;
 
-        public new PullRequestController Controller
+        public new PullRequestViewModel ViewModel
         {
-            get { return (PullRequestController)base.Controller; }
-            protected set { base.Controller = value; }
+            get { return (PullRequestViewModel)base.ViewModel; }
+            protected set { base.ViewModel = value; }
         }
 
-        public PullRequestViewController(string user, string slug, long id)
+        public PullRequestViewController(string user, string slug, ulong id)
         {
             Title = "Pull Request #".t() + id;
-            Controller = new PullRequestController(this, user, slug, id);
+            ViewModel = new PullRequestViewModel(user, slug, id);
 
             Root.UnevenRows = true;
             _header = new HeaderView(View.Bounds.Width) { ShadowImage = false };
             _split1 = new SplitElement(new SplitElement.Row { Image1 = Images.Cog, Image2 = Images.Merge }) { BackgroundColor = UIColor.White };
+
+            Bind(ViewModel, x => x.PullRequest, Render);
+            BindCollection(ViewModel, x => x.Comments, e => Render());
         }
 
-        public void Render(PullRequestController.ViewModel model)
+        public void Render()
         {
+            if (ViewModel.PullRequest == null)
+                return;
+
             var root = new RootElement(Title);
-            _header.Title = model.PullRequest.Title;
-            _header.Subtitle = "Updated " + (model.PullRequest.UpdatedAt).ToDaysAgo();
+            _header.Title = ViewModel.PullRequest.Title;
+            _header.Subtitle = "Updated " + (ViewModel.PullRequest.UpdatedAt).ToDaysAgo();
             _header.SetNeedsDisplay();
             root.Add(new Section(_header));
 
             var secDetails = new Section();
-            if (!string.IsNullOrEmpty(model.PullRequest.Body))
+            if (!string.IsNullOrEmpty(ViewModel.PullRequest.Body))
             {
-                var desc = new MultilinedElement(model.PullRequest.Body.Trim()) 
+                var desc = new MultilinedElement(ViewModel.PullRequest.Body.Trim()) 
                 { 
                     BackgroundColor = UIColor.White,
                     CaptionColor = Theme.CurrentTheme.MainTitleColor, 
@@ -53,20 +60,20 @@ namespace CodeHub.ViewControllers
                 secDetails.Add(desc);
             }
 
-            _split1.Value.Text1 = model.PullRequest.State;
-            _split1.Value.Text2 = (model.PullRequest.Merged == null || !model.PullRequest.Merged.Value) ? "Not Merged" : "Merged";
+            _split1.Value.Text1 = ViewModel.PullRequest.State;
+            _split1.Value.Text2 = (ViewModel.PullRequest.Merged == null || !ViewModel.PullRequest.Merged.Value) ? "Not Merged" : "Merged";
             secDetails.Add(_split1);
             root.Add(secDetails);
 
             root.Add(new Section {
-                new StyledStringElement("Commits", () => NavigationController.PushViewController(new ChangesetViewController(Controller.User, Controller.Repo, Controller.PullRequestId), true), Images.Commit),
-                new StyledStringElement("Files", () => NavigationController.PushViewController(new PullRequestFilesViewController(Controller.User, Controller.Repo, Controller.PullRequestId), true), Images.File),
+                new StyledStringElement("Commits", () => NavigationController.PushViewController(new ChangesetViewController(ViewModel.User, ViewModel.Repo, ViewModel.PullRequestId), true), Images.Commit),
+                new StyledStringElement("Files", () => NavigationController.PushViewController(new PullRequestFilesViewController(ViewModel.User, ViewModel.Repo, ViewModel.PullRequestId), true), Images.File),
             });
 
-            if (model.Comments.Count > 0)
+            if (ViewModel.Comments.Items.Count > 0)
             {
                 var commentsSec = new Section();
-                model.Comments.OrderBy(x => (x.CreatedAt)).ToList().ForEach(x => {
+                ViewModel.Comments.OrderBy(x => (x.CreatedAt)).ToList().ForEach(x => {
                     if (!string.IsNullOrEmpty(x.Body))
                         commentsSec.Add(new CommentElement {
                             Name = x.User.Login,
@@ -107,18 +114,22 @@ namespace CodeHub.ViewControllers
         void AddCommentTapped()
         {
             var composer = new Composer();
-            composer.NewComment(this, () => {
-                var text = composer.Text;
-                composer.DoWork(() => {
-                    Controller.AddComment(text);
-                    InvokeOnMainThread(() => {
+            composer.NewComment(this, (text) => {
+                try
+                {
+                    composer.DoWorkTest("Commenting...".t(), async () => {
+                        await ViewModel.AddComment(text);
                         composer.CloseComposer();
                     });
-                }, ex =>
+                }
+                catch (Exception ex)
                 {
                     Utilities.ShowAlert("Unable to post comment!", ex.Message);
+                }
+                finally
+                {
                     composer.EnableSendButton = true;
-                });
+                }
             });
         }
 

@@ -1,30 +1,34 @@
 using System;
 using System.Linq;
-using CodeFramework.Controllers;
 using GitHubSharp.Models;
 using CodeHub.Controllers;
 using MonoTouch.Dialog;
 using CodeFramework.Elements;
 using System.Collections.Generic;
+using CodeFramework.ViewControllers;
+using CodeHub.ViewModels;
 
 namespace CodeHub.ViewControllers
 {
-    public class IssueLabelsViewController : BaseListControllerDrivenViewController, IListView<LabelModel>
+    public class IssueLabelsViewController : ViewModelCollectionDrivenViewController
     {
         public List<LabelModel> SelectedLabels { get; set; }
+
+        public new RepositoryLabelsViewModel ViewModel
+        {
+            get { return (RepositoryLabelsViewModel)base.ViewModel; }
+            set { base.ViewModel = value; }
+        }
 
         public IssueLabelsViewController(string user, string repo)
         {
             Title = "Labels".t();
             NoItemsText = "No Labels".t();
             SearchPlaceholder = "Search Labels".t();
-            Controller = new RepositoryLabelsController(this, user, repo);
+            ViewModel = new RepositoryLabelsViewModel(user, repo);
             SelectedLabels = new List<LabelModel>();
-        }
 
-        public void Render(ListModel<LabelModel> model)
-        {
-            this.RenderList(model, x => {
+            BindCollection(ViewModel, x => {
                 var e = new StyledStringElement(x.Name);
 
                 if (SelectedLabels.Exists(y => y.Name.Equals(x.Name)))

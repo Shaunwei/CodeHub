@@ -1,26 +1,17 @@
-using System;
-using MonoTouch.Dialog;
-using MonoTouch.UIKit;
-using System.Threading;
-using System.Linq;
-using RedPlum;
-using System.Drawing;
-using MonoTouch;
-using System.Collections.Generic;
-using GitHubSharp.Models;
-using CodeHub.Controllers;
-using CodeFramework.Controllers;
+using CodeFramework.ViewControllers;
+using CodeHub.ViewModels;
 using CodeFramework.Elements;
-using CodeFramework.Filters.Controllers;
+using System.Drawing;
+using MonoTouch.UIKit;
 
 namespace CodeHub.ViewControllers
 {
-    public sealed class RepositoriesExploreViewController : BaseListControllerDrivenViewController, IListView<RepositorySearchModel.RepositoryModel>
+    public sealed class RepositoriesExploreViewController : ViewModelCollectionDrivenViewController
     {
-        public new RepositoriesExploreController Controller
+        public new RepositoriesExploreViewModel ViewModel
         {
-            get { return (RepositoriesExploreController)base.Controller; }
-            private set { base.Controller = value; }
+            get { return (RepositoriesExploreViewModel)base.ViewModel; }
+            private set { base.ViewModel = value; }
         }
 
 		public RepositoriesExploreViewController()
@@ -30,15 +21,9 @@ namespace CodeHub.ViewControllers
             SearchPlaceholder = "Search Repositories".t();
             NoItemsText = "No Repositories".t();
             Title = "Explore".t();
-            Controller = new RepositoriesExploreController(this);
-        }
+            ViewModel = new RepositoriesExploreViewModel();
 
-        public void Render(ListModel<RepositorySearchModel.RepositoryModel> model)
-        {
-            if (!Controller.Searched)
-                return;
-
-            RenderList(model, repo => {
+            BindCollection(ViewModel, repo => {
                 var description = Application.Account.ShowRepositoryDescriptionInList ? repo.Description : string.Empty;
                 var imageUrl = repo.Fork ? CodeHub.Images.GitHubRepoForkUrl : CodeHub.Images.GitHubRepoUrl;
                 var sse = new RepositoryElement(repo.Name, repo.Watchers, repo.Forks, description, repo.Owner, imageUrl) { ShowOwner = true };
@@ -115,7 +100,7 @@ namespace CodeHub.ViewControllers
         public override void SearchButtonClicked(string text)
         {
             View.EndEditing(true);
-            Controller.Search(text);
+            this.DoWorkTest("Searching...".t(), async () => await ViewModel.Search(text));
         }
     }
 }

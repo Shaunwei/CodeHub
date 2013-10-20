@@ -1,26 +1,30 @@
 using System;
-using CodeFramework.Controllers;
 using GitHubSharp.Models;
 using CodeHub.Controllers;
 using MonoTouch.Dialog;
+using CodeFramework.ViewControllers;
+using CodeHub.ViewModels;
 
 namespace CodeHub.ViewControllers
 {
-    public class IssueMilestonesViewController : BaseListControllerDrivenViewController, IListView<MilestoneModel>
+    public class IssueMilestonesViewController : ViewModelCollectionDrivenViewController
     {
         public Action<MilestoneModel> MilestoneSelected;
+
+        public new IssueMilestonesViewModel ViewModel
+        {
+            get { return (IssueMilestonesViewModel)base.ViewModel; }
+            protected set { base.ViewModel = value; }
+        }
 
         public IssueMilestonesViewController(string user, string repo)
         {
             Title = "Milestones".t();
             NoItemsText = "No Milestones".t();
             SearchPlaceholder = "Search Milestones".t();
-            Controller = new IssueMilestonesController(this, user, repo);
-        }
+            ViewModel = new IssueMilestonesViewModel(user, repo);
 
-        public void Render(ListModel<MilestoneModel> model)
-        {
-            this.RenderList(model, x => {
+            BindCollection(ViewModel, x => {
                 return new StyledStringElement(x.Title, () => {
                     if (MilestoneSelected != null)
                         MilestoneSelected(x);

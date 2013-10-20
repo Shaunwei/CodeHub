@@ -1,8 +1,8 @@
-using CodeFramework.Filters.Controllers;
+using CodeFramework.Filters.ViewControllers;
 using MonoTouch.Dialog;
 using CodeHub.Filters.Models;
 using MonoTouch.UIKit;
-using CodeFramework.Controllers;
+using CodeFramework.ViewModels;
 
 namespace CodeHub.Filters.ViewControllers
 {
@@ -10,9 +10,9 @@ namespace CodeHub.Filters.ViewControllers
     {
         private TrueFalseElement _ascendingElement;
         private EnumChoiceElement<RepositoriesFilterModel.Order> _orderby;
-        private readonly IFilterController<RepositoriesFilterModel> _filterController;
+        private readonly IFilterableViewModel<RepositoriesFilterModel> _filterController;
 
-        public RepositoriesFilterViewController(IFilterController<RepositoriesFilterModel> filterController)
+        public RepositoriesFilterViewController(IFilterableViewModel<RepositoriesFilterModel> filterController)
         {
             _filterController = filterController;
         }
