@@ -9,20 +9,23 @@ using CodeHub.ViewModels;
 
 namespace CodeHub.Controllers
 {
-    public class NotificationsViewModel : CollectionViewModel<NotificationModel>, ILoadableViewModel
+    public class NotificationsViewModel : FilterableCollectionViewModel<NotificationModel, NotificationsFilterModel>, ILoadableViewModel
     {
-        private const bool _all = false;
-        private const bool _participating = true;
-
         public NotificationsViewModel()
+            : base("Notifications")
         {
             GroupingFunction = (n) => n.GroupBy(x => x.Repository.FullName);
         }
 
+        protected override void FilterChanged()
+        {
+            Load(true);
+        }
+
         public async Task Load(bool forceDataRefresh)
         {
-            await Task.Run(() => this.RequestModel(Application.Client.Notifications.GetAll(all: _all, participating: _participating), forceDataRefresh, response => {
-                Items.Reset(response.Data.Where(x => x.Unread));
+            await Task.Run(() => this.RequestModel(Application.Client.Notifications.GetAll(all: Filter.All, participating: Filter.Participating), forceDataRefresh, response => {
+                Items.Reset(response.Data);
                 UpdateAccountNotificationsCount();
             }));
         }
@@ -34,7 +37,6 @@ namespace CodeHub.Controllers
             {
                 //We just read it
                 model.Unread = false;
-                Items.Remove(model);
 
                 //Update the notifications count on the account
                 UpdateAccountNotificationsCount();

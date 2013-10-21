@@ -222,6 +222,7 @@
     <Compile Include="ViewModels\OrganizationRepositoriesViewModel.cs" />
     <Compile Include="ViewControllers\UserEventsViewController.cs" />
     <Compile Include="ViewControllers\RepositoryViewController.cs" />
+    <Compile Include="Filters\Models\NotificationsFilterModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <ItemGroup>

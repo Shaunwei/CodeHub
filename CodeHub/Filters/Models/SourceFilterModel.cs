@@ -3,20 +3,20 @@ using CodeFramework.Filters.Models;
 
 namespace CodeHub.Filters.Models
 {
-    public class SourceFilterModel : FilterModel<SourceFilterModel>
+	public class SourceFilterModel : FilterModel<SourceFilterModel>
     {
         public Order OrderBy { get; set; }
         public bool Ascending { get; set; }
 
-        public SourceFilterModel()
+		public SourceFilterModel()
         {
             OrderBy = Order.FoldersThenFiles;
             Ascending = true;
         }
 
-        public override SourceFilterModel Clone()
+		public override SourceFilterModel Clone()
         {
-            return (SourceFilterModel)this.MemberwiseClone();
+			return (SourceFilterModel)this.MemberwiseClone();
         }
 
         public enum Order : int
