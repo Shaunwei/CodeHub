@@ -203,10 +203,17 @@ namespace CodeHub.ViewControllers
                 Image2 = Images.Size
             }));
 
-
             var owner = new StyledStringElement("Owner".t(), model.Owner.Login) { Image = Images.Person,  Accessory = UITableViewCellAccessory.DisclosureIndicator };
             owner.Tapped += () => NavigationController.PushViewController(new ProfileViewController(model.Owner.Login), true);
             sec1.Add(owner);
+
+            if (model.Parent != null)
+            {
+                var parent = new StyledStringElement("Forked From".t(), model.Parent.FullName) { Image = Images.Fork,  Accessory = UITableViewCellAccessory.DisclosureIndicator };
+                parent.Tapped += () => NavigationController.PushViewController(new RepositoryViewController(model.Parent.Owner.Login, model.Parent.Name), true);
+                sec1.Add(parent);
+            }
+
             var followers = new StyledStringElement("Stargazers".t(), "" + model.Watchers) { Image = Images.Star, Accessory = UITableViewCellAccessory.DisclosureIndicator };
             followers.Tapped += () => NavigationController.PushViewController(new StargazersViewController(model.Owner.Login, model.Name), true);
             sec1.Add(followers);
