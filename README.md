@@ -1,7 +1,10 @@
 CodeHub
 =======
 
-CodeHub is the best way to browse and maintain your GitHub repositories on any iPhone, iPod Touch, and iPad device!
+CodeHub is the best way to browse and maintain your GitHub repositories on any iPhone, iPod Touch, and iPad device! Keep an eye on your projects with the ability to view everything from pull requests to commenting on individual file diffs in the latest change set. CodeHub brings GitHub to your finger tips in a sleek and efficient design. 
+
+Follow the project on twitter: [@CodeHubApp](http://www.twitter.com/CodeHubApp)
+Feature requests can be made on GitHub or on [UserVoice](http://codehub.uservoice.com/)
 
 Screenshots
 ------------------
