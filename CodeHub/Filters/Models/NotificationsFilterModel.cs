@@ -12,7 +12,7 @@ namespace CodeHub.Filters.Models
         public NotificationsFilterModel()
         {
             All = false;
-            Participating = true;
+            Participating = false;
         }
 
         public override bool Equals(object obj)

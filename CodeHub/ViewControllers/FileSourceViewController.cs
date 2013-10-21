@@ -9,6 +9,11 @@ namespace CodeHub.ViewControllers
 {
     public abstract class FileSourceViewController : CodeFramework.ViewControllers.FileSourceViewController
     {
+        private static string[] BinaryMIMEs = new string[] 
+        { 
+            "image/", "video/", "audio/", "model/", "application/pdf", "application/zip", "application/gzip"
+        };
+
         public class DownloadResult
         {
             public string File { get; set; }
@@ -28,19 +33,27 @@ namespace CodeHub.ViewControllers
             //Create a temporary filename
             var filepath = CreateFile(rawUrl);
             var result = new DownloadResult();
+            string mime = null;
 
             //Find
             using (var stream = new System.IO.FileStream(filepath, System.IO.FileMode.Create, System.IO.FileAccess.Write))
             {
-                var mime = Application.Client.DownloadRawResource(rawUrl, stream);
-                if (mime.Contains("text") && mime.Contains("charset"))
-                    result.IsBinary = false;
-                else
-                    result.IsBinary = true;
+                mime = Application.Client.DownloadRawResource(rawUrl, stream) ?? string.Empty;
             }
 
-            result.File = filepath;
-            return result;
+            return new DownloadResult { IsBinary = IsBinary(mime), File = filepath };
+        }
+
+        private static bool IsBinary(string mime)
+        {
+            var lowerMime = mime.ToLower();
+            foreach (var m in BinaryMIMEs)
+            {
+                if (lowerMime.StartsWith(m))
+                    return true;
+            }
+
+            return false;
         }
     }
 }

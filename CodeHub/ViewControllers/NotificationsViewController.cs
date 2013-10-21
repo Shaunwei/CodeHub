@@ -5,6 +5,7 @@ using CodeHub.Controllers;
 using CodeFramework.ViewControllers;
 using MonoTouch.UIKit;
 using CodeHub.Filters.Models;
+using System.Threading.Tasks;
 
 namespace CodeHub.ViewControllers
 {
@@ -31,7 +32,32 @@ namespace CodeHub.ViewControllers
             _segmentBarButton = new UIBarButtonItem(_viewSegment);
 
             BindCollection(ViewModel, CreateElement);
+            Bind(ViewModel, x => x.Loading, Loading);
         }
+
+        private TaskCompletionSource<bool> _loadingSource;
+
+        /// <summary>
+        /// This function is disgusting! But for some reason it works
+        /// </summary>
+        /// <param name="isLoading">If set to <c>true</c> is loading.</param>
+        private void Loading(bool isLoading)
+        {
+            if (isLoading)
+            {
+                if (_loadingSource != null)
+                    return;
+
+                _loadingSource = new TaskCompletionSource<bool>();
+                this.DoWorkTest("Loading...", () => _loadingSource.Task);
+            }
+            else
+            {
+                _loadingSource.SetResult(true);
+                _loadingSource = null;
+            }
+        }
+
 
         public override void ViewDidLoad()
         {
@@ -124,10 +150,11 @@ namespace CodeHub.ViewControllers
 
         public override void ViewWillDisappear(bool animated)
         {
-            base.ViewWillDisappear(animated);
             if (ToolbarItems != null)
                 NavigationController.SetToolbarHidden(true, animated);
+            base.ViewWillDisappear(animated);
         }
+
     }
 }
 

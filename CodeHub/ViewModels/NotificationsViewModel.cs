@@ -6,20 +6,40 @@ using CodeFramework.ViewModels;
 using CodeFramework.Utils;
 using System.Threading.Tasks;
 using CodeHub.ViewModels;
+using System;
 
 namespace CodeHub.Controllers
 {
     public class NotificationsViewModel : FilterableCollectionViewModel<NotificationModel, NotificationsFilterModel>, ILoadableViewModel
     {
+        private bool _loading;
+
+        public bool Loading
+        {
+            get { return _loading; }
+            protected set { SetProperty(ref _loading, value); }
+        }
+
         public NotificationsViewModel()
             : base("Notifications")
         {
             GroupingFunction = (n) => n.GroupBy(x => x.Repository.FullName);
         }
 
-        protected override void FilterChanged()
+        protected override async void FilterChanged()
         {
-            Load(true);
+            Loading = true;
+            try
+            {
+                await Load(true);
+            }
+            catch (Exception e)
+            {
+            }
+            finally
+            {
+                Loading = false;
+            }
         }
 
         public async Task Load(bool forceDataRefresh)
@@ -38,6 +58,10 @@ namespace CodeHub.Controllers
                 //We just read it
                 model.Unread = false;
 
+                // Only remove if we're not looking at all
+                if (Filter.All == false)
+                    Items.Remove(model);
+
                 //Update the notifications count on the account
                 UpdateAccountNotificationsCount();
             }
@@ -45,7 +69,9 @@ namespace CodeHub.Controllers
 
         private void UpdateAccountNotificationsCount()
         {
-            Application.Account.Notifications = Items.Sum(x => x.Unread ? 1 : 0);
+            // Only update if we're looking at 
+            if (Filter.All == false && Filter.Participating == false)
+                Application.Account.Notifications = Items.Sum(x => x.Unread ? 1 : 0);
         }
     }
 }
