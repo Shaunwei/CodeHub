@@ -141,9 +141,9 @@ namespace CodeHub.ViewControllers
                 var gistFileModel = model.Files[fileSaved];
 
                 if (string.Equals(gistFileModel.Language, "markdown", StringComparison.OrdinalIgnoreCase))
-                    sse.Tapped += () => NavigationController.PushViewController(new GistViewableFileController(gistFileModel), true);
+                    sse.Tapped += () => NavigationController.PushViewController(new GistViewableFileController(gistFileModel, ViewModel.Gist.HtmlUrl), true);
                 else
-                    sse.Tapped += () => NavigationController.PushViewController(new GistFileViewController(gistFileModel), true);
+                    sse.Tapped += () => NavigationController.PushViewController(new GistFileViewController(gistFileModel, ViewModel.Gist.HtmlUrl), true);
 
                 sec2.Add(sse);
             }

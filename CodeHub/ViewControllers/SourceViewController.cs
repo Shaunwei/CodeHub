@@ -42,7 +42,7 @@ namespace CodeHub.ViewControllers
                 if (x.Size != null)
                 {
                     return new StyledStringElement(x.Name, () => NavigationController.PushViewController(
-                        new SourceInfoViewController(ViewModel.Username, ViewModel.Repository, ViewModel.Branch, x.Path) { Title = x.Name }, true), Images.File);
+                        new SourceInfoViewController(x.HtmlUrl, x.Path) { Title = x.Name }, true), Images.File);
                 }
                 //If there is no size, it's most likey a submodule
                 else

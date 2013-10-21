@@ -186,7 +186,7 @@ namespace CodeHub.ViewControllers
             {
                 img = Images.Fork;
                 var forkEvent = (EventModel.ForkEvent)eventModel.PayloadObject;
-                elementAction = () => NavigationController.PushViewController(new RepositoryInfoViewController(forkEvent.Forkee.Owner.Login, forkEvent.Forkee.Name), true);
+                elementAction = () => NavigationController.PushViewController(new RepositoryViewController(forkEvent.Forkee.Owner.Login, forkEvent.Forkee.Name), true);
                 blocks.Add(new NewsFeedElement.TextBlock("Forked ".t()));
                 blocks.Add(RepoName(eventModel.Repo));
                 blocks.Add(new NewsFeedElement.TextBlock(" to ".t()));
@@ -199,7 +199,7 @@ namespace CodeHub.ViewControllers
             {
                 img = Images.Fork;
                 var forkEvent = (EventModel.ForkApplyEvent)eventModel.PayloadObject;
-                elementAction = () => NavigationController.PushViewController(new RepositoryInfoViewController(repoId.Owner, repoId.Name), true);
+                elementAction = () => NavigationController.PushViewController(new RepositoryViewController(repoId.Owner, repoId.Name), true);
                 blocks.Add(new NewsFeedElement.TextBlock("Applied fork to ".t()));
                 blocks.Add(RepoName(eventModel.Repo));
                 blocks.Add(new NewsFeedElement.TextBlock(" on branch ".t()));
@@ -286,7 +286,7 @@ namespace CodeHub.ViewControllers
             {
                 img = Images.Group;
                 var memberEvent = (EventModel.MemberEvent)eventModel.PayloadObject;
-                elementAction = () => NavigationController.PushViewController(new RepositoryInfoViewController(repoId.Owner, repoId.Name), true);
+                elementAction = () => NavigationController.PushViewController(new RepositoryViewController(repoId.Owner, repoId.Name), true);
 
                 if (memberEvent.Action.Equals("added"))
                     blocks.Add(new NewsFeedElement.TextBlock("Added as a collaborator".t()));
@@ -305,7 +305,7 @@ namespace CodeHub.ViewControllers
             else if (eventModel.PayloadObject is EventModel.PublicEvent)
             {
                 img = Images.Heart;
-                elementAction = () => NavigationController.PushViewController(new RepositoryInfoViewController(repoId.Owner, repoId.Name), true);
+                elementAction = () => NavigationController.PushViewController(new RepositoryViewController(repoId.Owner, repoId.Name), true);
                 if (ReportRepository)
                 {
                     blocks.Add(RepoName(eventModel.Repo));
@@ -412,7 +412,7 @@ namespace CodeHub.ViewControllers
             {
                 var watchEvent = (EventModel.WatchEvent)eventModel.PayloadObject;
                 img = Images.Eye;
-                elementAction = () => NavigationController.PushViewController(new RepositoryInfoViewController(repoId.Owner, repoId.Name), true);
+                elementAction = () => NavigationController.PushViewController(new RepositoryViewController(repoId.Owner, repoId.Name), true);
 
                 if (watchEvent.Action.Equals("started"))
                     blocks.Add(new NewsFeedElement.TextBlock("Started watching ".t()));
@@ -430,7 +430,7 @@ namespace CodeHub.ViewControllers
             if (e != null && ValidRepo(e))
             {
                 var repoNameSplit = e.Name.Split('/');
-                return () => NavigationController.PushViewController(new RepositoryInfoViewController(repoNameSplit[0], repoNameSplit[1]), true);
+                return () => NavigationController.PushViewController(new RepositoryViewController(repoNameSplit[0], repoNameSplit[1]), true);
             }
             return null;
         }
@@ -455,7 +455,7 @@ namespace CodeHub.ViewControllers
             if (ValidRepo(repoModel))
             {
                 var repoNameSplit = repoModel.Name.Split('/');
-                return () => NavigationController.PushViewController(new RepositoryInfoViewController(repoNameSplit[0], repoNameSplit[1], repoNameSplit[1]), true);
+                return () => NavigationController.PushViewController(new RepositoryViewController(repoNameSplit[0], repoNameSplit[1], repoNameSplit[1]), true);
             }
 
             return null;
@@ -494,7 +494,7 @@ namespace CodeHub.ViewControllers
             if (e != null && ValidRepo(e))
             {
                 var repoNameSplit = e.Name.Split('/');
-                NavigationController.PushViewController(new RepositoryInfoViewController(repoNameSplit[0], repoNameSplit[1], repoNameSplit[1]), true);
+                NavigationController.PushViewController(new RepositoryViewController(repoNameSplit[0], repoNameSplit[1], repoNameSplit[1]), true);
             }
         }
 

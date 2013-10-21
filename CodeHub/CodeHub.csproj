@@ -151,7 +151,6 @@
     <Compile Include="ViewControllers\RepositoriesExploreViewController.cs" />
     <Compile Include="ViewControllers\GistInfoViewController.cs" />
     <Compile Include="Utils\RepositoryIdentifier.cs" />
-    <Compile Include="ViewControllers\RepositoryInfoViewController.cs" />
     <Compile Include="ViewControllers\TeamsViewController.cs" />
     <Compile Include="ViewControllers\NotificationsViewController.cs" />
     <Compile Include="ViewControllers\OrganizationViewController.cs" />
@@ -222,6 +221,7 @@
     <Compile Include="ViewControllers\OrganizationRepositoriesViewController.cs" />
     <Compile Include="ViewModels\OrganizationRepositoriesViewModel.cs" />
     <Compile Include="ViewControllers\UserEventsViewController.cs" />
+    <Compile Include="ViewControllers\RepositoryViewController.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <ItemGroup>

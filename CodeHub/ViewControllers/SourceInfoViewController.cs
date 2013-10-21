@@ -2,30 +2,69 @@ using System;
 using MonoTouch.UIKit;
 using MonoTouch.Foundation;
 using GitHubSharp;
+using CodeFramework.Views;
 
 namespace CodeHub.ViewControllers
 {
 	public class RawContentViewController : FileSourceViewController
     {
         private readonly string _rawUrl;
+        private readonly string _githubUrl;
+        protected DownloadResult _downloadResult;
 
-        public RawContentViewController(string rawUrl)
+        public RawContentViewController(string rawUrl, string githubUrl)
         {
             _rawUrl = rawUrl;
+            _githubUrl = githubUrl;
             Title = rawUrl.Substring(rawUrl.LastIndexOf('/') + 1);
+            NavigationItem.RightBarButtonItem = new UIBarButtonItem(NavigationButton.Create(Theme.CurrentTheme.GearButton, ShowExtraMenu));
         }
+
+        private void ShowExtraMenu()
+        {
+            var sheet = MonoTouch.Utilities.GetSheet(Title);
+
+            var openButton = _downloadResult != null ? sheet.AddButton("Open In".t()) : -1;
+            var shareButton = sheet.AddButton("Share".t());
+            var showButton = _githubUrl != null ? sheet.AddButton("Show in GitHub".t()) : -1;
+            var cancelButton = sheet.AddButton("Cancel".t());
+            sheet.CancelButtonIndex = cancelButton;
+            sheet.DismissWithClickedButtonIndex(cancelButton, true);
+            sheet.Clicked += (s, e) => {
+                if (e.ButtonIndex == openButton)
+                {
+                    var ctrl = new UIDocumentInteractionController();
+                    ctrl.Url = NSUrl.FromFilename(_downloadResult.File);
+                    ctrl.PresentOpenInMenu(NavigationItem.RightBarButtonItem, true);
+                }
+                else if (e.ButtonIndex == shareButton)
+                {
+                    var item = UIActivity.FromObject (_githubUrl);
+                    var activityItems = new NSObject[] { item };
+                    UIActivity[] applicationActivities = null;
+                    var activityController = new UIActivityViewController (activityItems, applicationActivities);
+                    PresentViewController (activityController, true, null);
+                }
+                else if (e.ButtonIndex == showButton)
+                {
+                    try { UIApplication.SharedApplication.OpenUrl(new NSUrl(_githubUrl)); } catch { }
+                }
+            };
+
+            sheet.ShowInView(this.View);
+        }
+
 
         protected override void Request()
         {
             try 
             {
-                string mime = "text";
-                var file = DownloadFile(_rawUrl, out mime);
+                var result = _downloadResult = DownloadFile(_rawUrl);
                 var ext = System.IO.Path.GetExtension(_rawUrl).TrimStart('.');
-                if (mime.StartsWith("text"))
-                    LoadRawData(System.Security.SecurityElement.Escape(System.IO.File.ReadAllText(file, System.Text.Encoding.UTF8)), ext);
+                if (!result.IsBinary)
+                    LoadRawData(System.Security.SecurityElement.Escape(System.IO.File.ReadAllText(result.File, System.Text.Encoding.UTF8)), ext);
                 else
-                    LoadFile(file);
+                    LoadFile(result.File);
             }
             catch (InternalServerException ex)
             {
@@ -34,17 +73,11 @@ namespace CodeHub.ViewControllers
         }
     }
 
-    public class SourceInfoViewController : FileSourceViewController
+    public class SourceInfoViewController : RawContentViewController
     {
-        protected string _user, _slug, _branch, _path;
-
-        public SourceInfoViewController(string user, string slug, string branch, string path)
+        public SourceInfoViewController(string rawHtmlUrl, string path)
+            : base (ReplaceFirst(rawHtmlUrl, "/blob/", "/raw/"), rawHtmlUrl)
         {
-            _user = user;
-            _slug = slug;
-            _branch = branch;
-            _path = path;
-
             //Create the filename
             var fileName = System.IO.Path.GetFileName(path);
             if (fileName == null)
@@ -54,61 +87,13 @@ namespace CodeHub.ViewControllers
             Title = fileName;
         }
 
-        protected override void Request()
+        private static string ReplaceFirst(string text, string search, string replace)
         {
-            try 
-            {
-                string mime = "text";
-                var file = DownloadFile(_user, _slug, _branch, _path, out mime);
-                var ext = System.IO.Path.GetExtension(_path).TrimStart('.');
-                if (mime.StartsWith("text"))
-                    LoadRawData(System.Security.SecurityElement.Escape(System.IO.File.ReadAllText(file, System.Text.Encoding.UTF8)), ext);
-                else
-                    LoadFile(file);
-            }
-            catch (InternalServerException ex)
-            {
-                MonoTouch.Utilities.ShowAlert("Error", ex.Message);
-            }
+            int pos = text.IndexOf(search);
+            if (pos < 0)
+                return text;
+            return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
         }
     }
-
-//    public class ContentViewController : FileSourceViewController
-//    {
-//        private readonly string _filename;
-//        private readonly string _content;
-//        private readonly string _encoding;
-//
-//        public ContentViewController(string filename, string content, string encoding)
-//        {
-//            _filename = filename;
-//            _content = content;
-//            _encoding = encoding;
-//
-//            Title = filename;
-//        }
-//
-//        protected override void Request()
-//        {
-//            try 
-//            {
-//                var filename = Environment.TickCount + _filename;
-//                var filepath = System.IO.Path.Combine(TempDir, filename);
-//                string decoded;
-//
-//                if (string.Equals(_encoding, "base64", StringComparison.OrdinalIgnoreCase))
-//                {
-//                    var d = System.Convert.FromBase64String(_content);
-//                    System.IO.File.WriteAllBytes(filepath, d);
-//                }
-//
-//                LoadFile(filepath);
-//            }
-//            catch (InternalServerException ex)
-//            {
-//                MonoTouch.Utilities.ShowAlert("Error", ex.Message);
-//            }
-//        }
-//    }
 }
 

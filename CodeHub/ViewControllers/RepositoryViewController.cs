@@ -12,7 +12,7 @@ using CodeFramework.ViewControllers;
 
 namespace CodeHub.ViewControllers
 {
-    public class RepositoryInfoViewController : ViewModelDrivenViewController, IImageUpdated
+    public class RepositoryViewController : ViewModelDrivenViewController, IImageUpdated
     {
         private HeaderView _header;
 
@@ -22,12 +22,12 @@ namespace CodeHub.ViewControllers
             protected set { base.ViewModel = value; }
         }
         
-        public RepositoryInfoViewController(string username, string slug)
+        public RepositoryViewController(string username, string slug)
             : this(username, slug, slug)
         {
         }
 
-        public RepositoryInfoViewController(string username, string slug,  string name)
+        public RepositoryViewController(string username, string slug,  string name)
         {
             Title = name;
             ViewModel = new RepositoryViewModel(username, slug);

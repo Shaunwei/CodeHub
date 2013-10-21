@@ -98,7 +98,7 @@ namespace CodeHub.ViewControllers
                     TextColor = StyledStringElement.DefaultDetailColor,
                     Image = Images.Repo
                 };
-                repo.Tapped += () => NavigationController.PushViewController(new RepositoryInfoViewController(Repo.Owner, Repo.Name), true);
+                repo.Tapped += () => NavigationController.PushViewController(new RepositoryViewController(Repo.Owner, Repo.Name), true);
                 detailSection.Add(repo);
             }
 

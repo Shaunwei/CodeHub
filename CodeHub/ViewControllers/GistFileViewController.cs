@@ -5,15 +5,14 @@ using CodeFramework.ViewControllers;
 
 namespace CodeHub.ViewControllers
 {
-    public class GistFileViewController : FileSourceViewController
+    public class GistFileViewController : RawContentViewController
     {
         GistFileModel _model;
-        private string _url;
         private string _content;
 
-        public GistFileViewController(GistFileModel model, string content = null)
+        public GistFileViewController(GistFileModel model, string gistUrl, string content = null)
+            : base(model.RawUrl, gistUrl)
         {
-            _url = model.RawUrl;
             _model = model;
             Title = model.Filename;
             _content = content;
@@ -23,16 +22,16 @@ namespace CodeHub.ViewControllers
         {
             if (_content == null)
             {
-                using (var ms = new System.IO.MemoryStream())
-                {
-                    Application.Client.DownloadRawResource(_url, ms);
-                    ms.Position = 0;
-                    var sr = new System.IO.StreamReader(ms);
-                    _content = sr.ReadToEnd();
-                }
+                base.Request();
             }
-            var ext = System.IO.Path.GetExtension(_model.Filename).TrimStart('.');
-            LoadRawData(System.Security.SecurityElement.Escape(_content), ext);
+            else
+            {
+                var filePath = CreateFile(_model.Filename);
+                System.IO.File.WriteAllText(filePath, _content, System.Text.Encoding.UTF8);
+                _downloadResult = new DownloadResult { File = filePath, IsBinary = false };
+                var ext = System.IO.Path.GetExtension(_model.Filename).TrimStart('.');
+                LoadRawData(System.Security.SecurityElement.Escape(_content), ext);
+            }
         }
     }
 
@@ -42,14 +41,14 @@ namespace CodeHub.ViewControllers
         string _rawContent;
         bool _loaded = false;
 
-        public GistViewableFileController(GistFileModel model)
+        public GistViewableFileController(GistFileModel model, string gistUrl)
             : base(true)
         {
             _model = model;
             Title = model.Filename;
 
             NavigationItem.RightBarButtonItem = new UIBarButtonItem(NavigationButton.Create(Theme.CurrentTheme.ViewButton, () => {
-                NavigationController.PushViewController(new GistFileViewController(model, _rawContent), true);
+                NavigationController.PushViewController(new GistFileViewController(model, gistUrl, _rawContent), true);
             }));
         }
 

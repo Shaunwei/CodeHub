@@ -9,38 +9,38 @@ namespace CodeHub.ViewControllers
 {
     public abstract class FileSourceViewController : CodeFramework.ViewControllers.FileSourceViewController
     {
-        protected static string DownloadFile(string user, string slug, string branch, string path, out string mime)
+        public class DownloadResult
         {
-            //Create a temporary filename
-            var ext = System.IO.Path.GetExtension(path);
-            if (ext == null) ext = string.Empty;
-            var filename = Environment.TickCount + ext;
-            var filepath = System.IO.Path.Combine(TempDir, filename);
-
-            //Find
-            using (var stream = new System.IO.FileStream(filepath, System.IO.FileMode.Create, System.IO.FileAccess.Write))
-            {
-                mime = Application.Client.Users[user].Repositories[slug].GetFileRaw(branch, path, stream);
-            }
-
-            return filepath;
+            public string File { get; set; }
+            public bool IsBinary { get; set; }
         }
 
-        protected static string DownloadFile(string rawUrl, out string mime)
+        protected static string CreateFile(string filename)
+        {
+            var ext = System.IO.Path.GetExtension(filename);
+            if (ext == null) ext = string.Empty;
+            var newFilename = Environment.TickCount + ext;
+            return System.IO.Path.Combine(TempDir, newFilename);
+        }
+
+        protected static DownloadResult DownloadFile(string rawUrl)
         {
             //Create a temporary filename
-            var ext = System.IO.Path.GetExtension(rawUrl);
-            if (ext == null) ext = string.Empty;
-            var filename = Environment.TickCount + ext;
-            var filepath = System.IO.Path.Combine(TempDir, filename);
+            var filepath = CreateFile(rawUrl);
+            var result = new DownloadResult();
 
             //Find
             using (var stream = new System.IO.FileStream(filepath, System.IO.FileMode.Create, System.IO.FileAccess.Write))
             {
-                mime = Application.Client.DownloadRawResource(rawUrl, stream);
+                var mime = Application.Client.DownloadRawResource(rawUrl, stream);
+                if (mime.Contains("text") && mime.Contains("charset"))
+                    result.IsBinary = false;
+                else
+                    result.IsBinary = true;
             }
 
-            return filepath;
+            result.File = filepath;
+            return result;
         }
     }
 }
