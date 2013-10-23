@@ -212,7 +212,7 @@ namespace CodeHub.ViewControllers
             {
                 img = Images.Script;
                 var gistEvent = (EventModel.GistEvent)eventModel.PayloadObject;
-                var action = elementAction = () => NavigationController.PushViewController(new GistInfoViewController(gistEvent.Gist.Id), true);
+                var action = elementAction = () => NavigationController.PushViewController(new GistViewController(gistEvent.Gist.Id), true);
 
                 if (string.Equals(gistEvent.Action, "create", StringComparison.OrdinalIgnoreCase))
                     blocks.Add(new NewsFeedElement.TextBlock("Created Gist #".t()));

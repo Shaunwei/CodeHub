@@ -143,13 +143,10 @@
     <Compile Include="Filters\ViewControllers\IssuesFilterViewController.cs" />
     <Compile Include="Filters\ViewControllers\RepositoriesFilterViewController.cs" />
     <Compile Include="Filters\ViewControllers\SourceFilterViewController.cs" />
-    <Compile Include="ViewControllers\GistsViewController.cs" />
-    <Compile Include="ViewControllers\GistFileViewController.cs" />
     <Compile Include="ViewControllers\ReadmeViewController.cs" />
     <Compile Include="ViewControllers\OrganizationMembersViewController.cs" />
     <Compile Include="ViewControllers\OrganizationsViewController.cs" />
     <Compile Include="ViewControllers\RepositoriesExploreViewController.cs" />
-    <Compile Include="ViewControllers\GistInfoViewController.cs" />
     <Compile Include="Utils\RepositoryIdentifier.cs" />
     <Compile Include="ViewControllers\TeamsViewController.cs" />
     <Compile Include="ViewControllers\NotificationsViewController.cs" />
@@ -223,6 +220,16 @@
     <Compile Include="ViewControllers\UserEventsViewController.cs" />
     <Compile Include="ViewControllers\RepositoryViewController.cs" />
     <Compile Include="Filters\Models\NotificationsFilterModel.cs" />
+    <Compile Include="ViewControllers\Gists\GistFileViewController.cs" />
+    <Compile Include="ViewControllers\Gists\GistsViewController.cs" />
+    <Compile Include="ViewControllers\Gists\GistViewController.cs" />
+    <Compile Include="ViewControllers\Gists\ModifyGistFileController.cs" />
+    <Compile Include="ViewControllers\Gists\ModifyGistFileController.designer.cs">
+      <DependentUpon>ModifyGistFileController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewControllers\Gists\AccountGistsViewController.cs" />
+    <Compile Include="ViewControllers\Gists\CreateGistViewController.cs" />
+    <Compile Include="ViewControllers\Gists\EditGistController.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <ItemGroup>
@@ -267,6 +274,7 @@
   <ItemGroup>
     <InterfaceDefinition Include="ViewControllers\Accounts\LoginViewController.xib" />
     <InterfaceDefinition Include="ViewControllers\Accounts\AccountTypeViewController.xib" />
+    <InterfaceDefinition Include="ViewControllers\Gists\ModifyGistFileController.xib" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Images\anonymous.png" />
@@ -421,6 +429,8 @@
     <BundleResource Include="Images\Gist\star_highlighted%402x.png" />
     <BundleResource Include="Images\Gist\user.png" />
     <BundleResource Include="Images\Gist\user%402x.png" />
+    <BundleResource Include="Images\Buttons\fork.png" />
+    <BundleResource Include="Images\Buttons\fork%402x.png" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="Resources\iTunesArtwork.png" />
@@ -432,6 +442,6 @@
   <ItemGroup>
     <Folder Include="Images\Gist\" />
     <Folder Include="ViewModels\" />
-    <Folder Include="ViewModels\Events\" />
+    <Folder Include="ViewControllers\Gists\" />
   </ItemGroup>
 </Project>

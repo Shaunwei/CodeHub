@@ -5,7 +5,7 @@ using CodeFramework.ViewModels;
 using System.Threading.Tasks;
 using CodeHub.ViewModels;
 
-namespace CodeHub.Controllers
+namespace CodeHub.ViewModels
 {
     public class AccountGistsViewModel : GistsViewModel
     {

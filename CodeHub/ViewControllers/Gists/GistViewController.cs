@@ -9,7 +9,7 @@ using MonoTouch.Dialog;
 
 namespace CodeHub.ViewControllers
 {
-    public class GistInfoViewController : ViewModelDrivenViewController
+    public class GistViewController : ViewModelDrivenViewController
     {
         private readonly HeaderView _header;
         private readonly UIBarButtonItem _shareButton, _userButton;
@@ -21,7 +21,7 @@ namespace CodeHub.ViewControllers
             set { base.ViewModel = value; }
         }
 
-        public GistInfoViewController(string id)
+        public GistViewController(string id)
         {
             Title = "Gist";
             ViewModel = new GistViewModel(id);
@@ -42,17 +42,57 @@ namespace CodeHub.ViewControllers
             _userButton.Enabled = false;
             _shareButton.Enabled = false;
 
-            this.Bind(ViewModel, x => x.Gist, RenderGist);
+            this.Bind(ViewModel, x => x.Gist, (gist) => {
+                UpdateOwned();
+                RenderGist(gist);
+            });
             this.Bind(ViewModel, x => x.IsStarred, isStarred => {
                 _starButton.SetImage(isStarred ? Images.Gist.StarHighlighted : Images.Gist.Star, UIControlState.Normal);
                 _starButton.SetNeedsDisplay();
             });
         }
 
-        public GistInfoViewController(GistModel model)
+        public GistViewController(GistModel model)
             : this (model.Id)
         {
             //Controller.Model.Gist = model;
+        }
+        
+        private void UpdateOwned()
+        {
+            //Is it owned?
+            if (string.Equals(Application.Account.Username, ViewModel.Gist.User.Login, StringComparison.OrdinalIgnoreCase))
+            {
+                NavigationItem.RightBarButtonItem = new UIBarButtonItem(NavigationButton.Create(CodeFramework.Theme.CurrentTheme.EditButton, () => {
+                    //We need to make sure we have the FULL gist
+                    this.DoWork(() => {
+                        var gist = Application.Client.Execute(Application.Client.Gists[ViewModel.Id].Get()).Data;
+                        InvokeOnMainThread(() => {
+                            var gistController = new EditGistController(gist);
+                            gistController.Created = (editedGist) => {
+                                ViewModel.Gist = editedGist;
+                            };
+                            var navController = new UINavigationController(gistController);
+                            PresentViewController(navController, true, null);
+                        });
+                    });
+                }));
+            }
+            else
+            {
+                NavigationItem.RightBarButtonItem = new UIBarButtonItem(NavigationButton.Create(CodeFramework.Theme.CurrentTheme.ForkButton, () => {
+                    NavigationItem.RightBarButtonItem.Enabled = false;
+
+                    this.DoWork(() => {
+                        var forkedGist = Application.Client.Execute(Application.Client.Gists[ViewModel.Id].ForkGist()).Data;
+                        InvokeOnMainThread(delegate {
+                            NavigationController.PushViewController(new GistViewController(forkedGist), true);
+                        });
+                    }, null, () => {
+                        NavigationItem.RightBarButtonItem.Enabled = true;
+                    });
+                }));
+            }
         }
         
         private void ShareButtonPress()

@@ -7,14 +7,19 @@ namespace CodeHub.ViewModels
 {
     public class GistViewModel : ViewModel, ILoadableViewModel
     {
-        private readonly string _id;
         private GistModel _gist;
         private bool _starred;
+
+        public string Id
+        {
+            get;
+            private set;
+        }
 
         public GistModel Gist
         {
             get { return _gist; }
-            private set { SetProperty(ref _gist, value); }
+            set { SetProperty(ref _gist, value); }
         }
 
         public bool IsStarred
@@ -25,26 +30,26 @@ namespace CodeHub.ViewModels
 
         public GistViewModel(string id)
         {
-            _id = id;
+            Id = id;
         }
 
         public async Task SetStarred(bool value)
         {
-            var request = value ? Application.Client.Gists[_id].Star() : Application.Client.Gists[_id].Unstar();
+            var request = value ? Application.Client.Gists[Id].Star() : Application.Client.Gists[Id].Unstar();
             await Application.Client.ExecuteAsync(request);
             IsStarred = value;
         }
 
         public async Task Load(bool forceDataRefresh)
         {
-            var t1 = Task.Run(() => this.RequestModel(Application.Client.Gists[_id].Get(), forceDataRefresh, response => {
+            var t1 = Task.Run(() => this.RequestModel(Application.Client.Gists[Id].Get(), forceDataRefresh, response => {
                 Gist = response.Data;
             }));
 
             new Task(() => {
                 try
                 {
-                    this.RequestModel(Application.Client.Gists[_id].IsGistStarred(), forceDataRefresh, response => {
+                    this.RequestModel(Application.Client.Gists[Id].IsGistStarred(), forceDataRefresh, response => {
                         IsStarred = response.Data;
                     });
                 }
@@ -55,6 +60,12 @@ namespace CodeHub.ViewModels
             }).Start();
 
             await t1;
+        }
+
+        public async Task Edit(GistEditModel editModel)
+        {
+            var response = await Application.Client.ExecuteAsync(Application.Client.Gists[Id].EditGist(editModel));
+            Gist = response.Data;
         }
     }
 }

@@ -26,7 +26,7 @@ namespace CodeHub
         public UIImage FilterButton { get { return UIImageHelper.FromFileAuto("Images/Buttons/filter"); } }
         public UIImage GearButton { get { return UIImageHelper.FromFileAuto("Images/Buttons/gear"); } }
         public UIImage ViewButton { get { return UIImageHelper.FromFileAuto("Images/Buttons/view"); } }
-
+        public UIImage ForkButton { get { return UIImageHelper.FromFileAuto("Images/Buttons/fork"); } }
         public UIImage WebBackButton { get { return UIImage.FromFile("Images/Web/back_button@2x.png"); } }
         public UIImage WebFowardButton { get { return UIImage.FromFile("Images/Web/forward_button@2x.png"); } }
 

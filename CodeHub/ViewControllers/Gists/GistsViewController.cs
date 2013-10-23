@@ -1,5 +1,5 @@
 using System;
-using CodeHub.Controllers;
+using CodeHub.ViewModels;
 using GitHubSharp.Models;
 using MonoTouch.Dialog;
 using CodeFramework.ViewControllers;
@@ -24,29 +24,6 @@ namespace CodeHub.ViewControllers
         }
     }
 
-    public class AccountGistsViewController : GistsViewController
-    {
-        public AccountGistsViewController(string username)
-            : base(new AccountGistsViewModel(username))
-        {
-            if (username != null)
-            {
-                if (Application.Accounts.ActiveAccount.Username.Equals(username))
-                    Title = "My Gists";
-                else
-                {
-                    if (username.EndsWith("s"))
-                        Title = username + "' Gists";
-                    else
-                        Title = username + "'s Gists";
-                }
-            }
-            else
-            {
-                Title = "Gists";
-            }
-        }
-    }
 
 
     public abstract class GistsViewController : ViewModelCollectionDrivenViewController
@@ -68,7 +45,7 @@ namespace CodeHub.ViewControllers
 
                 sse.Name = (x.User == null) ? "Anonymous" : x.User.Login;
                 sse.ImageUri = (x.User == null) ? null : new Uri(x.User.AvatarUrl);
-                sse.Tapped += () => NavigationController.PushViewController(new GistInfoViewController(x), true);
+                sse.Tapped += () => NavigationController.PushViewController(new GistViewController(x), true);
                 return sse;
             });
         }
