@@ -24,7 +24,7 @@ namespace CodeHub.ViewControllers
             Name = name;
             ViewModel = new OrganizationViewModel(name);
 
-            Bind(ViewModel, x => x.Organization, model => {
+            ViewModel.Bind(x => x.Organization, model => {
                 _header.Subtitle = string.IsNullOrEmpty(model.Name) ? model.Login : model.Name;
                 _header.Image = ImageLoader.DefaultRequestImage(new System.Uri(model.AvatarUrl), this);
                 _header.SetNeedsDisplay();

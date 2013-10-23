@@ -12,9 +12,18 @@ namespace CodeHub.ViewModels
 {
     public class MyIssuesViewModel : FilterableCollectionViewModel<IssueModel, MyIssuesFilterModel>, ILoadableViewModel
     {
+        private bool _isLoading;
+
+        public bool IsLoading
+        {
+            get { return _isLoading; }
+            protected set { SetProperty(ref _isLoading, value); }
+        }
+
         public MyIssuesViewModel()
             : base("MyIssues")
         {
+            GroupingFunction = Group;
         }
 
         public async Task Load(bool forceDataRefresh)
@@ -32,24 +41,24 @@ namespace CodeHub.ViewModels
             }));
         }
         
-        protected List<IGrouping<string, IssueModel>> GroupModel(List<IssueModel> model, MyIssuesFilterModel filter)
+        private List<IGrouping<string, IssueModel>> Group(IEnumerable<IssueModel> model)
         {
-            var order = filter.SortType;
+            var order = Filter.SortType;
             if (order == MyIssuesFilterModel.Sort.Comments)
             {
-                var a = filter.Ascending ? model.OrderBy(x => x.Comments) : model.OrderByDescending(x => x.Comments);
+                var a = Filter.Ascending ? model.OrderBy(x => x.Comments) : model.OrderByDescending(x => x.Comments);
                 var g = a.GroupBy(x => IntegerCeilings.First(r => r > x.Comments)).ToList();
                 return CreateNumberedGroup(g, "Comments");
             }
             else if (order == MyIssuesFilterModel.Sort.Updated)
             {
-                var a = filter.Ascending ? model.OrderBy(x => x.UpdatedAt) : model.OrderByDescending(x => x.UpdatedAt);
+                var a = Filter.Ascending ? model.OrderBy(x => x.UpdatedAt) : model.OrderByDescending(x => x.UpdatedAt);
                 var g = a.GroupBy(x => IntegerCeilings.First(r => r > x.UpdatedAt.TotalDaysAgo()));
                 return CreateNumberedGroup(g, "Days Ago", "Updated");
             }
             else if (order == MyIssuesFilterModel.Sort.Created)
             {
-                var a = filter.Ascending ? model.OrderBy(x => x.CreatedAt) : model.OrderByDescending(x => x.CreatedAt);
+                var a = Filter.Ascending ? model.OrderBy(x => x.CreatedAt) : model.OrderByDescending(x => x.CreatedAt);
                 var g = a.GroupBy(x => IntegerCeilings.First(r => r > x.CreatedAt.TotalDaysAgo()));
                 return CreateNumberedGroup(g, "Days Ago", "Created");
             }
@@ -59,7 +68,20 @@ namespace CodeHub.ViewModels
 
         protected override async void FilterChanged()
         {
-            await Load(true);
+            IsLoading = true;
+
+            try
+            {
+                await Load(true);
+            }
+            catch (Exception e)
+            {
+                //Do nothing...
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
     }
 }

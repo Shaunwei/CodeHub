@@ -26,7 +26,7 @@ namespace CodeHub.ViewControllers
             ViewModel = new RepositoryCollaboratorsViewModel(user, repo);
 
             //Add a fake 'Unassigned' guy so we can always unassigned what we've done
-            BindCollection(ViewModel, x => x.Items, (ev) =>
+            ViewModel.BindCollection(x => x.Items, (ev) =>
             {
                 var items = ViewModel.Items.ToList();
                 items.Insert(0, new BasicUserModel { Id = 0, Login = "Unassigned" });

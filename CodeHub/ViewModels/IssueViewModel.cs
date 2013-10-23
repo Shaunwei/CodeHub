@@ -33,7 +33,7 @@ namespace CodeHub.ViewModels
         public IssueModel Issue
         {
             get { return _issueModel; }
-            set { SetProperty(ref _issueModel, _issueModel); }
+            set { SetProperty(ref _issueModel, value); }
         }
 
         public CollectionViewModel<IssueCommentModel> Comments

@@ -15,7 +15,7 @@ using CodeHub.ViewModels;
 
 namespace CodeHub.ViewControllers
 {
-    public class ChangesetInfoViewController : ViewModelDrivenViewController
+    public class ChangesetViewController : ViewModelDrivenViewController
     {
         private readonly HeaderView _header;
         private readonly UISegmentedControl _viewSegment;
@@ -30,7 +30,7 @@ namespace CodeHub.ViewControllers
             protected set { base.ViewModel = value; }
         }
         
-        public ChangesetInfoViewController(string user, string repository, string node)
+        public ChangesetViewController(string user, string repository, string node)
         {
             Title = "Commit".t();
             Root.UnevenRows = true;
@@ -42,8 +42,8 @@ namespace CodeHub.ViewControllers
             _segmentBarButton = new UIBarButtonItem(_viewSegment);
             _commentsSection = new Section();
 
-            Bind(ViewModel, x => x.Changeset, Render);
-            BindCollection(ViewModel, x => x.Comments, (a) => Render());
+            ViewModel.Bind(x => x.Changeset, Render);
+            ViewModel.BindCollection(x => x.Comments, (a) => Render());
         }
 
         public override void ViewDidLoad()

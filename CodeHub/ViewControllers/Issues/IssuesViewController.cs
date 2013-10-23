@@ -99,15 +99,6 @@ namespace CodeHub.ViewControllers
             if (ToolbarItems != null)
                 NavigationController.SetToolbarHidden(true, animated);
         }
-
-        protected override void ChildChangedModel(IssueModel changedModel, IssueModel oldModel)
-        {
-            //If null then it's been deleted!
-            if (changedModel == null)
-                ViewModel.Items.Remove(oldModel);
-            else
-                ViewModel.UpdateIssue(changedModel);
-        }
     }
 }
 

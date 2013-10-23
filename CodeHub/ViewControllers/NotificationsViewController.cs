@@ -32,7 +32,7 @@ namespace CodeHub.ViewControllers
             _segmentBarButton = new UIBarButtonItem(_viewSegment);
 
             BindCollection(ViewModel, CreateElement);
-            Bind(ViewModel, x => x.Loading, Loading);
+            ViewModel.Bind(x => x.Loading, Loading);
         }
 
         private TaskCompletionSource<bool> _loadingSource;
@@ -97,7 +97,7 @@ namespace CodeHub.ViewControllers
                 el.Tapped += () => {
                     this.DoWorkNoHud(() => ViewModel.Read(x));
                     var node = x.Subject.Url.Substring(x.Subject.Url.LastIndexOf('/') + 1);
-                    NavigationController.PushViewController(new ChangesetInfoViewController(x.Repository.Owner.Login, x.Repository.Name, node), true);
+                    NavigationController.PushViewController(new ChangesetViewController(x.Repository.Owner.Login, x.Repository.Name, node), true);
                 };
             }
 

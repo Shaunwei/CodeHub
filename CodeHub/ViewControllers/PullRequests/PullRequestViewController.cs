@@ -31,8 +31,8 @@ namespace CodeHub.ViewControllers
             _header = new HeaderView(View.Bounds.Width) { ShadowImage = false };
             _split1 = new SplitElement(new SplitElement.Row { Image1 = Images.Cog, Image2 = Images.Merge }) { BackgroundColor = UIColor.White };
 
-            Bind(ViewModel, x => x.PullRequest, Render);
-            BindCollection(ViewModel, x => x.Comments, e => Render());
+            ViewModel.Bind(x => x.PullRequest, Render);
+            ViewModel.BindCollection(x => x.Comments, e => Render());
         }
 
         public void Render()
@@ -66,7 +66,7 @@ namespace CodeHub.ViewControllers
             root.Add(secDetails);
 
             root.Add(new Section {
-                new StyledStringElement("Commits", () => NavigationController.PushViewController(new ChangesetViewController(ViewModel.User, ViewModel.Repo, ViewModel.PullRequestId), true), Images.Commit),
+                new StyledStringElement("Commits", () => NavigationController.PushViewController(new ChangesetsViewController(ViewModel.User, ViewModel.Repo, ViewModel.PullRequestId), true), Images.Commit),
                 new StyledStringElement("Files", () => NavigationController.PushViewController(new PullRequestFilesViewController(ViewModel.User, ViewModel.Repo, ViewModel.PullRequestId), true), Images.File),
             });
 

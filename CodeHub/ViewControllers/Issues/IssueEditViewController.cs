@@ -78,11 +78,31 @@ namespace CodeHub.ViewControllers
 
                 //New
                 await this.DoWorkTest("Saving...", async () => {
-                    var response = (ExistingIssue == null) ? 
-                        await Application.Client.ExecuteAsync(Application.Client.Users[Username].Repositories[RepoSlug].Issues.Create(title, content, assignedTo, milestone, labels)) :
-                        await Application.Client.ExecuteAsync(Application.Client.Users[Username].Repositories[RepoSlug].Issues[ExistingIssue.Number].Update(title, content, state, assignedTo, milestone, labels)); 
-                    model = response.Data;
+                    var tryEditAgain = false;
+
+                    try
+                    {
+                        var response = (ExistingIssue == null) ? 
+                            await Application.Client.ExecuteAsync(Application.Client.Users[Username].Repositories[RepoSlug].Issues.Create(title, content, assignedTo, milestone, labels)) :
+                            await Application.Client.ExecuteAsync(Application.Client.Users[Username].Repositories[RepoSlug].Issues[ExistingIssue.Number].Update(title, content, state, assignedTo, milestone, labels)); 
+                        model = response.Data;
+                    }
+                    //There is a wierd bug in GitHub when editing an existing issue and the assignedTo is null
+                    catch (GitHubSharp.InternalServerException)
+                    {
+                        if (ExistingIssue != null && assignedTo == null)
+                            tryEditAgain = true;
+                        else
+                            throw;
+                    }
+
+                    if (tryEditAgain)
+                    {
+                        var response = await Application.Client.ExecuteAsync(Application.Client.Users[Username].Repositories[RepoSlug].Issues[ExistingIssue.Number].Update(title, content, state, assignedTo, milestone, labels)); 
+                        model = response.Data;
+                    }
                 });
+  
 
                 if (Success != null)
                     Success(model);

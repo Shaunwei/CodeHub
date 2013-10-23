@@ -42,11 +42,11 @@ namespace CodeHub.ViewControllers
             _userButton.Enabled = false;
             _shareButton.Enabled = false;
 
-            this.Bind(ViewModel, x => x.Gist, (gist) => {
+            ViewModel.Bind( x => x.Gist, (gist) => {
                 UpdateOwned();
                 RenderGist(gist);
             });
-            this.Bind(ViewModel, x => x.IsStarred, isStarred => {
+            ViewModel.Bind(x => x.IsStarred, isStarred => {
                 _starButton.SetImage(isStarred ? Images.Gist.StarHighlighted : Images.Gist.Star, UIControlState.Normal);
                 _starButton.SetNeedsDisplay();
             });

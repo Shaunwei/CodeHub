@@ -6,6 +6,8 @@ using CodeFramework.Elements;
 using CodeHub.Filters.Models;
 using CodeHub.Filters.ViewControllers;
 using CodeHub.ViewModels;
+using System.Threading.Tasks;
+using CodeFramework.ViewControllers;
 
 namespace CodeHub.ViewControllers
 {
@@ -26,6 +28,31 @@ namespace CodeHub.ViewControllers
             _viewSegment = new UISegmentedControl(new string[] { "Open".t(), "Closed".t(), "Custom".t() });
             _viewSegment.ControlStyle = UISegmentedControlStyle.Bar;
             _segmentBarButton = new UIBarButtonItem(_viewSegment);
+
+            ViewModel.Bind(x => x.IsLoading, Loading);
+        }
+
+        private TaskCompletionSource<bool> _loadingSource;
+
+        /// <summary>
+        /// This function is disgusting! But for some reason it works
+        /// </summary>
+        /// <param name="isLoading">If set to <c>true</c> is loading.</param>
+        private void Loading(bool isLoading)
+        {
+            if (isLoading)
+            {
+                if (_loadingSource != null)
+                    return;
+
+                _loadingSource = new TaskCompletionSource<bool>();
+                this.DoWorkTest("Loading...", () => _loadingSource.Task);
+            }
+            else
+            {
+                _loadingSource.SetResult(true);
+                _loadingSource = null;
+            }
         }
 
         public override void ViewDidLoad()
@@ -86,17 +113,6 @@ namespace CodeHub.ViewControllers
             base.ViewWillDisappear(animated);
             if (ToolbarItems != null)
                 NavigationController.SetToolbarHidden(true, animated);
-        }
-
-        protected override void ChildChangedModel(IssueModel changedModel, IssueModel oldModel)
-        {
-            throw new NotImplementedException("Removed!");
-//            //If null then it's been deleted!
-//            if (changedModel == null)
-//                ViewModel.Items.Remove(oldModel);
-//            else
-//                ViewModel.UpdateIssue(changedModel);
-
         }
     }
 }

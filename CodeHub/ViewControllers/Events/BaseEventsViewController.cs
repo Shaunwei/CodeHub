@@ -71,7 +71,7 @@ namespace CodeHub.ViewControllers
             {
                 var commitEvent = (EventModel.CommitCommentEvent)eventModel.PayloadObject;
                 img = Images.Comments;
-                var action = elementAction = () => NavigationController.PushViewController(new ChangesetInfoViewController(repoId.Owner, repoId.Name, commitEvent.Comment.CommitId), true);
+                var action = elementAction = () => NavigationController.PushViewController(new ChangesetViewController(repoId.Owner, repoId.Name, commitEvent.Comment.CommitId), true);
                 var node = commitEvent.Comment.CommitId.Substring(0, commitEvent.Comment.CommitId.Length > 10 ? 10 : commitEvent.Comment.CommitId.Length);
                 blocks.Add(new NewsFeedElement.TextBlock("Commented on commit ".t()));
                 blocks.Add(new NewsFeedElement.TextBlock(node, () => action()));
@@ -361,7 +361,7 @@ namespace CodeHub.ViewControllers
                 var pushEvent = (EventModel.PushEvent)eventModel.PayloadObject;
 
                 if (eventModel.Repo != null)
-                    elementAction = () => NavigationController.PushViewController(new ChangesetInfoViewController(repoId.Owner, repoId.Name, pushEvent.Commits[0].Sha) { Repo = repoId }, true);
+                    elementAction = () => NavigationController.PushViewController(new ChangesetViewController(repoId.Owner, repoId.Name, pushEvent.Commits[0].Sha) { Repo = repoId }, true);
 
                 blocks.Add(new NewsFeedElement.TextBlock("Pushed to ".t()));
                 if (!string.IsNullOrEmpty(pushEvent.Ref))

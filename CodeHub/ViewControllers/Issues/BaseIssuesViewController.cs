@@ -52,14 +52,12 @@ namespace CodeHub.ViewControllers
                     var s1 = x.Url.Substring(x.Url.IndexOf("/repos/") + 7);
                     var repoId = new CodeHub.Utils.RepositoryIdentifier(s1.Substring(0, s1.IndexOf("/issues")));
                     var info = new IssueViewController(repoId.Owner, repoId.Name, x.Number);
-                    info.ViewModel.ModelChanged = newModel => ChildChangedModel(newModel, x);
+                    //info.ViewModel.ModelChanged = newModel => ChildChangedModel(newModel, x);
                     NavigationController.PushViewController(info, true);
                 };
             }
             return el;
         }
-
-        protected abstract void ChildChangedModel(IssueModel changedModel, IssueModel oldModel);
     }
 }
 

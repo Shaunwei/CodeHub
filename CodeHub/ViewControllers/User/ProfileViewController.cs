@@ -21,7 +21,7 @@ namespace CodeHub.ViewControllers
             Title = username;
             ViewModel = new ProfileViewModel(username);
 
-            Bind(ViewModel, x => x.User, () => {
+            ViewModel.Bind(x => x.User, () => {
                 _header.Subtitle = string.IsNullOrEmpty(ViewModel.User.Name) ? ViewModel.User.Login : ViewModel.User.Name;
                 _header.Image = ImageLoader.DefaultRequestImage(new System.Uri(ViewModel.User.AvatarUrl), this);
                 _header.SetNeedsDisplay();

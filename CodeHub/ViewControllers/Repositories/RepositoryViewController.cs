@@ -37,12 +37,12 @@ namespace CodeHub.ViewControllers
             NavigationItem.RightBarButtonItem = new UIBarButtonItem(NavigationButton.Create(Theme.CurrentTheme.GearButton, ShowExtraMenu));
             NavigationItem.RightBarButtonItem.Enabled = false;
 
-            Bind(ViewModel, x => x.Repository, x => {
+            ViewModel.Bind(x => x.Repository, x => {
                 NavigationItem.RightBarButtonItem.Enabled = true;
                 Render(x);
             });
 
-            Bind(ViewModel, x => x.Readme, () =>  { 
+            ViewModel.Bind(x => x.Readme, () =>  { 
                 // Not very efficient but it'll work for now.
                 if (ViewModel.Repository != null)
                     Render(ViewModel.Repository);
@@ -231,7 +231,7 @@ namespace CodeHub.ViewControllers
 
             var sec3 = new Section
             {
-                new StyledStringElement("Changes".t(), () => NavigationController.PushViewController(new ChangesetViewController(model.Owner.Login, model.Name), true), Images.Commit),
+                new StyledStringElement("Changes".t(), () => NavigationController.PushViewController(new ChangesetsViewController(model.Owner.Login, model.Name), true), Images.Commit),
                 new StyledStringElement("Pull Requests".t(), () => NavigationController.PushViewController(new PullRequestsViewController(model.Owner.Login, model.Name), true), Images.Hand),
                 new StyledStringElement("Branches".t(), () => NavigationController.PushViewController(new BranchesViewController(model.Owner.Login, model.Name), true), Images.Branch),
                 new StyledStringElement("Tags".t(), () => NavigationController.PushViewController(new TagsViewController(model.Owner.Login, model.Name), true), Images.Tag)

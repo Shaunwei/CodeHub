@@ -47,8 +47,8 @@ namespace CodeHub.ViewControllers
             _header = new HeaderView(View.Bounds.Width) { ShadowImage = false };
             _split1 = new SplitElement(new SplitElement.Row { Image1 = Images.Cog, Image2 = Images.Milestone }) { BackgroundColor = UIColor.White };
 
-            Bind(ViewModel, x => x.Issue, Render);
-            BindCollection(ViewModel, x => x.Comments, (e) => Render());
+            ViewModel.Bind(x => x.Issue, Render);
+            ViewModel.BindCollection(x => x.Comments, (e) => Render());
         }
 
         public void Render()
@@ -162,7 +162,7 @@ namespace CodeHub.ViewControllers
             composer.NewComment(this, (text) => {
                 try
                 {
-                    this.DoWorkTest("Loading...".t(), async () => {
+                    composer.DoWorkTest("Loading...".t(), async () => {
                         await ViewModel.AddComment(text);
                         composer.CloseComposer();
                     });

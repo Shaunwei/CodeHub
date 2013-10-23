@@ -3,6 +3,7 @@ using CodeHub.ViewModels;
 using CodeFramework.Elements;
 using System.Drawing;
 using MonoTouch.UIKit;
+using System;
 
 namespace CodeHub.ViewControllers
 {
@@ -100,7 +101,16 @@ namespace CodeHub.ViewControllers
         public override void SearchButtonClicked(string text)
         {
             View.EndEditing(true);
-            this.DoWorkTest("Searching...".t(), async () => await ViewModel.Search(text));
+
+            try
+            {
+                this.DoWorkTest("Searching...".t(), async () => await ViewModel.Search(text));
+            }
+            catch (Exception e)
+            {
+                MonoTouch.Utilities.ShowAlert("Error".t(), e.Message);
+                MonoTouch.Utilities.LogException(e);
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ using CodeFramework.ViewControllers;
 
 namespace CodeHub.ViewControllers
 {
-    public class ChangesetViewController : ViewModelCollectionDrivenViewController
+    public class ChangesetsViewController : ViewModelCollectionDrivenViewController
     {
         public new ChangesetViewModel ViewModel
         {
@@ -15,20 +15,20 @@ namespace CodeHub.ViewControllers
             set { base.ViewModel = value; }
         }
 
-        private ChangesetViewController()
+        private ChangesetsViewController()
         {
             Title = "Changes".t();
             Root.UnevenRows = true;
             EnableSearch = false;
         }
 
-        public ChangesetViewController(string user, string slug) : this()
+        public ChangesetsViewController(string user, string slug) : this()
         {
             ViewModel = new ChangesetViewModel(user, slug);
             DoBinding();
         }
 
-        public ChangesetViewController(string user, string slug, ulong pullRequestId) : this()
+        public ChangesetsViewController(string user, string slug, ulong pullRequestId) : this()
         {
             //Controller = new PullRequestCommitsController(this, user, slug, pullRequestId);
             throw new InvalidOperationException("SHIT");
@@ -55,7 +55,7 @@ namespace CodeHub.ViewControllers
                     date = x.Commit.Committer.Date;
 
                 var el = new NameTimeStringElement { Name = login, Time = date.ToDaysAgo(), String = desc, Lines = 4 };
-                el.Tapped += () => NavigationController.PushViewController(new ChangesetInfoViewController(ViewModel.Username, ViewModel.Repository, x.Sha), true);
+                el.Tapped += () => NavigationController.PushViewController(new ChangesetViewController(ViewModel.Username, ViewModel.Repository, x.Sha), true);
                 return el;
             });
         }
