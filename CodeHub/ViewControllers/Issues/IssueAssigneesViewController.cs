@@ -29,14 +29,15 @@ namespace CodeHub.ViewControllers
             ViewModel.BindCollection(x => x.Collaborators, (ev) =>
             {
                 var items = ViewModel.Collaborators.ToList();
-                items.Insert(0, new BasicUserModel { Id = 0, Login = "Unassigned" });
+                var notAssigned = new BasicUserModel { Id = 0, Login = "Unassigned" };
+                items.Insert(0, notAssigned);
 
                 RenderList(items, x => {
                     var e = new UserElement(x.Login, string.Empty, string.Empty, x.AvatarUrl);
                     e.Accessory = MonoTouch.UIKit.UITableViewCellAccessory.DisclosureIndicator;
                     e.Tapped += () => {
                         if (SelectedUser != null)
-                            SelectedUser(x);
+                            SelectedUser(x == notAssigned ? null : x);
                     };
                     return e;
                 }, ViewModel.Collaborators.MoreItems);

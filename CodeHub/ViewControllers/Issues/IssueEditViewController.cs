@@ -64,9 +64,9 @@ namespace CodeHub.ViewControllers
 
                 var title = _title.Value;
                 var content = _content.Value;
-                var assignedTo = _assignedTo.Value;
-                if (assignedTo.Equals(Unassigned))
-                    assignedTo = null;
+                string assignedTo = null;
+                if (_selectedAssignee != null)
+                    assignedTo = _selectedAssignee.Login;
 
                 var state = _state.Value ? "open" : "closed";
                 uint? milestone = null;
