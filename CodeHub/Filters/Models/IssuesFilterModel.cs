@@ -21,8 +21,14 @@ namespace CodeHub.Filters.Models
 
         public string Assignee { get; set; }
 
-        public string Milestone { get; set; }
+        public MilestoneKeyValue Milestone { get; set; }
 
+        public class MilestoneKeyValue
+        {
+            public string Name { get; set; }
+            public bool IsMilestone { get; set; }
+            public string Value { get; set; }
+        }
 
         public IssuesFilterModel()
         {

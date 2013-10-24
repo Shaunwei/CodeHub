@@ -6,6 +6,8 @@ using CodeFramework.Elements;
 using CodeHub.Filters.Models;
 using System;
 using CodeHub.Filters.ViewControllers;
+using System.Threading.Tasks;
+using CodeFramework.ViewControllers;
 
 namespace CodeHub.ViewControllers
 {
@@ -31,6 +33,31 @@ namespace CodeHub.ViewControllers
                 };
                 NavigationController.PushViewController(b, true);
             }));
+
+            ViewModel.Bind(x => x.IsLoading, Loading);
+        }
+
+        private TaskCompletionSource<bool> _loadingSource;
+
+        /// <summary>
+        /// This function is disgusting! But for some reason it works
+        /// </summary>
+        /// <param name="isLoading">If set to <c>true</c> is loading.</param>
+        private void Loading(bool isLoading)
+        {
+            if (isLoading)
+            {
+                if (_loadingSource != null)
+                    return;
+
+                _loadingSource = new TaskCompletionSource<bool>();
+                this.DoWorkTest("Loading...", () => _loadingSource.Task);
+            }
+            else
+            {
+                _loadingSource.SetResult(true);
+                _loadingSource = null;
+            }
         }
 
         public override void ViewDidLoad()
@@ -89,7 +116,7 @@ namespace CodeHub.ViewControllers
             }
             else if (_viewSegment.SelectedSegment == 3)
             {
-                var filter = new IssuesFilterViewController(ViewModel.Issues);
+                var filter = new IssuesFilterViewController(ViewModel.User, ViewModel.Slug, ViewModel.Issues);
                 var nav = new UINavigationController(filter);
                 PresentViewController(nav, true, null);
             }

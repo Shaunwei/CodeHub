@@ -14,6 +14,13 @@ namespace CodeHub.Controllers
     public class IssuesViewModel : ViewModel, ILoadableViewModel
     {
         private readonly FilterableCollectionViewModel<IssueModel, IssuesFilterModel> _issues;
+        private bool _isLoading;
+
+        public bool IsLoading
+        {
+            get { return _isLoading; }
+            protected set { SetProperty(ref _isLoading, value); }
+        }
 
         public FilterableCollectionViewModel<IssueModel, IssuesFilterModel> Issues
         {
@@ -30,6 +37,21 @@ namespace CodeHub.Controllers
 
             _issues = new FilterableCollectionViewModel<IssueModel, IssuesFilterModel>("IssuesViewModel");
             _issues.GroupingFunction = GroupModel;
+            _issues.Bind(x => x.Filter, async () =>
+            {
+                IsLoading = true;
+                try
+                {
+                    await Load(true);
+                }
+                catch (Exception e)
+                {
+                }
+                finally
+                {
+                    IsLoading = false;
+                }
+            });
         }
 
         public Task Load(bool forceDataRefresh)
@@ -41,9 +63,10 @@ namespace CodeHub.Controllers
             string assignee = string.IsNullOrEmpty(_issues.Filter.Assignee) ? null : _issues.Filter.Assignee;
             string creator = string.IsNullOrEmpty(_issues.Filter.Creator) ? null : _issues.Filter.Creator;
             string mentioned = string.IsNullOrEmpty(_issues.Filter.Mentioned) ? null : _issues.Filter.Mentioned;
+            string milestone = _issues.Filter.Milestone == null ? null : _issues.Filter.Milestone.Value;
 
             var request = Application.Client.Users[User].Repositories[Slug].Issues.GetAll(sort: sort, labels: labels, state: state, direction: direction, 
-                                                                                          assignee: assignee, creator: creator, mentioned: mentioned);
+                                                                                          assignee: assignee, creator: creator, mentioned: mentioned, milestone: milestone);
             return Issues.SimpleCollectionLoad(request, forceDataRefresh);
         }
 
