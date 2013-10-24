@@ -28,7 +28,7 @@ namespace CodeHub.ViewControllers
             ReportRepository = true;
             EnableSearch = false;
             ViewModel = viewModel;
-            BindCollection(ViewModel, CreateElement);
+            BindCollection(ViewModel.Events, CreateElement);
         }
 
         private MonoTouch.Dialog.Element CreateElement(EventModel e)

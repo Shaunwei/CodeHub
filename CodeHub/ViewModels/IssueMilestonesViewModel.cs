@@ -4,8 +4,15 @@ using System.Threading.Tasks;
 
 namespace CodeHub.ViewModels
 {
-    public class IssueMilestonesViewModel : CollectionViewModel<MilestoneModel>, ILoadableViewModel
+    public class IssueMilestonesViewModel : ViewModel, ILoadableViewModel
     {
+        private CollectionViewModel<MilestoneModel> _milestones = new CollectionViewModel<MilestoneModel>();
+
+        public CollectionViewModel<MilestoneModel> Milestones
+        {
+            get { return _milestones; }
+        }
+
         public string Username
         {
             get;
@@ -24,9 +31,9 @@ namespace CodeHub.ViewModels
             Repository = repository;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            await this.SimpleCollectionLoad(Application.Client.Users[Username].Repositories[Repository].Milestones.GetAll(), forceDataRefresh);
+            return Milestones.SimpleCollectionLoad(Application.Client.Users[Username].Repositories[Repository].Milestones.GetAll(), forceDataRefresh);
         }
     }
 }

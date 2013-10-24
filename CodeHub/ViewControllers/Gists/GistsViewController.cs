@@ -24,9 +24,7 @@ namespace CodeHub.ViewControllers
         }
     }
 
-
-
-    public abstract class GistsViewController : ViewModelCollectionDrivenViewController
+        public abstract class GistsViewController : ViewModelCollectionDrivenViewController
     {
         protected GistsViewController(GistsViewModel viewModel)
         {
@@ -34,7 +32,7 @@ namespace CodeHub.ViewControllers
             NoItemsText = "No Gists".t();
             ViewModel = viewModel;
 
-            BindCollection(viewModel, x => {
+            BindCollection(viewModel.Gists, x => {
                 var str = string.IsNullOrEmpty(x.Description) ? "Gist " + x.Id : x.Description;
                 var sse = new NameTimeStringElement() { 
                     Time = x.UpdatedAt.ToDaysAgo(), 

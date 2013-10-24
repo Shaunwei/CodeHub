@@ -26,7 +26,7 @@ namespace CodeHub.ViewControllers
             SearchPlaceholder = "Search Files & Folders".t();
             Title = string.IsNullOrEmpty(path) ? "Source".t() : path.Substring(path.LastIndexOf('/') + 1);
             ViewModel = new SourceViewModel(username, slug, branch, path);
-            BindCollection(ViewModel, CreateElement);
+            BindCollection(ViewModel.Content, CreateElement);
         }
 
         private Element CreateElement(ContentModel x)
@@ -62,7 +62,7 @@ namespace CodeHub.ViewControllers
 
         protected override CodeFramework.Filters.ViewControllers.FilterViewController CreateFilterController()
         {
-            return new CodeHub.Filters.ViewControllers.SourceFilterViewController(ViewModel);
+            return new CodeHub.Filters.ViewControllers.SourceFilterViewController(ViewModel.Content);
         }
     }
 }

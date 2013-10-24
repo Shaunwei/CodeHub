@@ -17,8 +17,7 @@ namespace CodeHub.ViewControllers
             SearchPlaceholder = "Search Followers".t();
             NoItemsText = "No Followers".t();
             ViewModel = new UserFollowersViewModel(username);
-
-            BindCollection(ViewModel, CreateElement);
+            BindCollection(ViewModel.Users, CreateElement);
         }
     }
 }

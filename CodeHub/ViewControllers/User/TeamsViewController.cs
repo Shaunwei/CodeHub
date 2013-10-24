@@ -26,7 +26,7 @@ namespace CodeHub.ViewControllers
             NoItemsText = "No Teams".t();
             ViewModel = new TeamsViewModel(name);
 
-            this.BindCollection(ViewModel, x => {
+            this.BindCollection(ViewModel.Teams, x => {
                 return new StyledStringElement(x.Name, () => NavigationController.PushViewController(new TeamMembersViewController(x.Name, x.Id), true));
             });
         }

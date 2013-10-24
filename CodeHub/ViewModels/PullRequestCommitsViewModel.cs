@@ -5,20 +5,8 @@ using CodeHub.ViewModels;
 
 namespace CodeHub.ViewModels
 {
-    public class PullRequestCommitsViewModel : CollectionViewModel<CommitModel>, ILoadableViewModel
+    public class PullRequestCommitsViewModel : ChangesetViewModel
     {
-        public string Username 
-        { 
-            get; 
-            private set; 
-        }
-
-        public string Repository 
-        { 
-            get; 
-            private set; 
-        }
-
         public ulong PullRequestId 
         { 
             get; 
@@ -26,15 +14,14 @@ namespace CodeHub.ViewModels
         }
 
         public PullRequestCommitsViewModel(string username, string repository, ulong pullRequestId)
+            : base(username, repository)
         {
-            Username = username;
-            Repository = repository;
             PullRequestId = pullRequestId;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        protected override GitHubSharp.GitHubRequest<System.Collections.Generic.List<CommitModel>> GetRequest()
         {
-            await this.SimpleCollectionLoad(Application.Client.Users[Username].Repositories[Repository].PullRequests[PullRequestId].GetCommits(), forceDataRefresh);
+            return Application.Client.Users[Username].Repositories[Repository].PullRequests[PullRequestId].GetCommits();
         }
     }
 }

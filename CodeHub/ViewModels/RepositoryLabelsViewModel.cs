@@ -4,8 +4,15 @@ using CodeFramework.ViewModels;
 
 namespace CodeHub.ViewModels
 {
-    public class RepositoryLabelsViewModel : CollectionViewModel<LabelModel>, ILoadableViewModel
+    public class RepositoryLabelsViewModel : ViewModel, ILoadableViewModel
     {
+        private readonly CollectionViewModel<LabelModel> _labels = new CollectionViewModel<LabelModel>();
+
+        public CollectionViewModel<LabelModel> Labels
+        {
+            get { return _labels; }
+        }
+
         public string Username
         {
             get;
@@ -24,9 +31,9 @@ namespace CodeHub.ViewModels
             Repository = repository;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            await this.SimpleCollectionLoad(Application.Client.Users[Username].Repositories[Repository].GetLabels(), forceDataRefresh);
+            return Labels.SimpleCollectionLoad(Application.Client.Users[Username].Repositories[Repository].GetLabels(), forceDataRefresh);
         }
     }
 }

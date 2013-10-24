@@ -8,22 +8,14 @@ namespace CodeHub.ViewControllers
 {
     public abstract class BaseIssuesViewController : ViewModelCollectionDrivenViewController
     {
-        public new CollectionViewModel<IssueModel> ViewModel
-        {
-            get { return (CollectionViewModel<IssueModel>)base.ViewModel; }
-            protected set { base.ViewModel = value; }
-        }
-
-        protected BaseIssuesViewController(CollectionViewModel<IssueModel> viewModel)
+        protected BaseIssuesViewController()
         {
             Root.UnevenRows = true;
             Title = "Issues".t();
             SearchPlaceholder = "Search Issues".t();
-            ViewModel = viewModel;
-            BindCollection(viewModel, CreateElement);
         }
 
-        public MonoTouch.Dialog.Element CreateElement(IssueModel x)
+        protected MonoTouch.Dialog.Element CreateElement(IssueModel x)
         {
             var isPullRequest = x.PullRequest != null && !(string.IsNullOrEmpty(x.PullRequest.HtmlUrl));
             var assigned = x.Assignee != null ? x.Assignee.Login : "unassigned";

@@ -11,7 +11,7 @@ using CodeHub.ViewModels;
 
 namespace CodeHub.ViewControllers
 {
-    public class PullRequestViewController : ViewModelCollectionDrivenViewController
+    public class PullRequestViewController : ViewModelDrivenViewController
     {
         private readonly HeaderView _header;
         private readonly SplitElement _split1;

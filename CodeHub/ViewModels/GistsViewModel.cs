@@ -44,15 +44,25 @@ namespace CodeHub.ViewModels
     }
 
 
-    public abstract class GistsViewModel : CollectionViewModel<GistModel>, ILoadableViewModel
+    public abstract class GistsViewModel : ViewModel, ILoadableViewModel
     {
+        private CollectionViewModel<GistModel> _gists = new CollectionViewModel<GistModel>();
+
+        public CollectionViewModel<GistModel> Gists
+        {
+            get
+            {
+                return _gists;
+            }
+        }
+
         protected GistsViewModel()
         {
         }
         
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            await this.SimpleCollectionLoad(CreateRequest(), forceDataRefresh);
+            return Gists.SimpleCollectionLoad(CreateRequest(), forceDataRefresh);
         }
 
         protected abstract GitHubRequest<List<GistModel>> CreateRequest();

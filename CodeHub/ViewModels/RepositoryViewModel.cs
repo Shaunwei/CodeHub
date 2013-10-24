@@ -55,7 +55,7 @@ namespace CodeHub.Controllers
         }
 
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
             var t1 = Task.Run(() => this.RequestModel(Application.Client.Users[Username].Repositories[RepositoryName].Get(), forceDataRefresh, response => {
                 Repository = response.Data;
@@ -76,7 +76,7 @@ namespace CodeHub.Controllers
                                   forceDataRefresh, response => Readme = response.Data);
             });
 
-            await t1;
+            return t1;
         }
 
         public async Task Watch()

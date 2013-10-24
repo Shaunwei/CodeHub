@@ -5,8 +5,15 @@ using CodeHub.ViewModels;
 
 namespace CodeHub.Controllers
 {
-    public class OrganizationMembersViewModel : CollectionViewModel<BasicUserModel>, ILoadableViewModel
+    public class OrganizationMembersViewModel : ViewModel, ILoadableViewModel
     {
+        private readonly CollectionViewModel<BasicUserModel> _members = new CollectionViewModel<BasicUserModel>();
+
+        public CollectionViewModel<BasicUserModel> Members
+        {
+            get { return _members; }
+        }
+
         public string OrganizationName 
         { 
             get; 
@@ -18,9 +25,9 @@ namespace CodeHub.Controllers
             OrganizationName = organizationName;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            await this.SimpleCollectionLoad(Application.Client.Organizations[OrganizationName].GetMembers(), forceDataRefresh);
+            return Members.SimpleCollectionLoad(Application.Client.Organizations[OrganizationName].GetMembers(), forceDataRefresh);
         }
     }
 }

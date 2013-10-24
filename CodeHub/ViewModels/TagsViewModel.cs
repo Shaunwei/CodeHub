@@ -5,8 +5,15 @@ using CodeHub.ViewModels;
 
 namespace CodeHub.ViewModels
 {
-    public class TagsViewModel : CollectionViewModel<TagModel>, ILoadableViewModel
+    public class TagsViewModel : ViewModel, ILoadableViewModel
     {
+        public CollectionViewModel<TagModel> _tags = new CollectionViewModel<TagModel>();
+
+        public CollectionViewModel<TagModel> Tags
+        {
+            get { return _tags; }
+        }
+
         public string Username
         {
             get;
@@ -25,9 +32,9 @@ namespace CodeHub.ViewModels
             Repository = repository;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            await this.SimpleCollectionLoad(Application.Client.Users[Username].Repositories[Repository].GetTags(), forceDataRefresh);
+            return Tags.SimpleCollectionLoad(Application.Client.Users[Username].Repositories[Repository].GetTags(), forceDataRefresh);
         }
     }
 }

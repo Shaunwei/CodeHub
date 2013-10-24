@@ -40,7 +40,7 @@ namespace CodeHub.ViewModels
             IsStarred = value;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
             var t1 = Task.Run(() => this.RequestModel(Application.Client.Gists[Id].Get(), forceDataRefresh, response => {
                 Gist = response.Data;
@@ -59,7 +59,7 @@ namespace CodeHub.ViewModels
                 }
             }).Start();
 
-            await t1;
+            return t1;
         }
 
         public async Task Edit(GistEditModel editModel)

@@ -4,12 +4,19 @@ using System.Threading.Tasks;
 
 namespace CodeHub.ViewModels
 {
-    public class UserFollowingsViewModel : CollectionViewModel<BasicUserModel>, ILoadableViewModel
+    public class UserFollowingsViewModel : ViewModel, ILoadableViewModel
     {
+        private readonly CollectionViewModel<BasicUserModel> _users = new CollectionViewModel<BasicUserModel>();
+
         public string Name
         {
             get;
             private set;
+        }
+
+        public CollectionViewModel<BasicUserModel> Users
+        {
+            get { return _users; }
         }
 
         public UserFollowingsViewModel(string name)
@@ -17,9 +24,9 @@ namespace CodeHub.ViewModels
             Name = name;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            await this.SimpleCollectionLoad(Application.Client.Users[Name].GetFollowing(), forceDataRefresh);
+            return _users.SimpleCollectionLoad(Application.Client.Users[Name].GetFollowing(), forceDataRefresh);
         }
     }
 }

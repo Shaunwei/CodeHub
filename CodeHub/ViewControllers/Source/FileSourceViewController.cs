@@ -32,7 +32,6 @@ namespace CodeHub.ViewControllers
         {
             //Create a temporary filename
             var filepath = CreateFile(rawUrl);
-            var result = new DownloadResult();
             string mime = null;
 
             //Find

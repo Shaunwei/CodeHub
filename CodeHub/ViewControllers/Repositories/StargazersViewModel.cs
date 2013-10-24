@@ -18,7 +18,7 @@ namespace CodeHub.ViewControllers
             NoItemsText = "No Stargazers".t();
             ViewModel = new StargazersViewModel(username, slug);
 
-            BindCollection(ViewModel, CreateElement);
+            BindCollection(ViewModel.Stargazers, CreateElement);
         }
     }
 }

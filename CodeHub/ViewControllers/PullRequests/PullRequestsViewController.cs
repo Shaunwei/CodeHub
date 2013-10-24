@@ -5,6 +5,7 @@ using MonoTouch.Dialog;
 using MonoTouch.UIKit;
 using CodeFramework.ViewControllers;
 using CodeHub.ViewModels;
+using System.Threading.Tasks;
 
 namespace CodeHub.ViewControllers
 {
@@ -27,7 +28,7 @@ namespace CodeHub.ViewControllers
             NoItemsText = "No Pull Requests".t();
             ViewModel = new PullRequestsViewModel(user, repo);
 
-            BindCollection(ViewModel, s => {
+            BindCollection(ViewModel.PullRequests, s => {
                 var sse = new NameTimeStringElement {
                     Name = s.Title,
                     String = s.Body.Replace('\n', ' ').Replace("\r", ""),
@@ -39,6 +40,31 @@ namespace CodeHub.ViewControllers
                 sse.Tapped += () => NavigationController.PushViewController(new PullRequestViewController(ViewModel.Username, ViewModel.Repository, s.Number), true);
                 return sse;
             });
+
+            ViewModel.Bind(x => x.IsLoading, Loading);
+        }
+
+        private TaskCompletionSource<bool> _loadingSource;
+
+        /// <summary>
+        /// This function is disgusting! But for some reason it works
+        /// </summary>
+        /// <param name="isLoading">If set to <c>true</c> is loading.</param>
+        private void Loading(bool isLoading)
+        {
+            if (isLoading)
+            {
+                if (_loadingSource != null)
+                    return;
+
+                _loadingSource = new TaskCompletionSource<bool>();
+                this.DoWorkTest("Loading...", () => _loadingSource.Task);
+            }
+            else
+            {
+                _loadingSource.SetResult(true);
+                _loadingSource = null;
+            }
         }
 
         public override void ViewDidLoad()
@@ -70,7 +96,7 @@ namespace CodeHub.ViewControllers
             _viewSegment.ValueChanged -= SegmentValueChanged;
 
             //Select which one is currently selected
-            _viewSegment.SelectedSegment = ViewModel.Filter.IsOpen ? 0 : 1;
+            _viewSegment.SelectedSegment = ViewModel.PullRequests.Filter.IsOpen ? 0 : 1;
 
             _viewSegment.ValueChanged += SegmentValueChanged;
         }
@@ -79,11 +105,11 @@ namespace CodeHub.ViewControllers
         {
             if (_viewSegment.SelectedSegment == 0)
             {
-                ViewModel.ApplyFilter(new CodeHub.Filters.Models.PullRequestsFilterModel { IsOpen = true }, true);
+                ViewModel.PullRequests.ApplyFilter(new CodeHub.Filters.Models.PullRequestsFilterModel { IsOpen = true }, true);
             }
             else if (_viewSegment.SelectedSegment == 1)
             {
-                ViewModel.ApplyFilter(new CodeHub.Filters.Models.PullRequestsFilterModel { IsOpen = false }, true);
+                ViewModel.PullRequests.ApplyFilter(new CodeHub.Filters.Models.PullRequestsFilterModel { IsOpen = false }, true);
             }
         }
 

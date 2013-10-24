@@ -19,7 +19,7 @@ namespace CodeHub.ViewControllers
             NoItemsText = "No Organizations".t();
             ViewModel = new OrganizationsViewModel(name);
 
-            BindCollection(ViewModel, x => {
+            BindCollection(ViewModel.Organizations, x => {
                 return new StyledStringElement(x.Login, () => NavigationController.PushViewController(new OrganizationViewController(x.Login), true));
             });
 		}

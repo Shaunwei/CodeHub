@@ -17,9 +17,9 @@ namespace CodeHub.ViewModels
             Name = name;
         }
 
-        public override async Task Load(bool forceDataRefresh)
+        public override Task Load(bool forceDataRefresh)
         {
-            await this.SimpleCollectionLoad(Application.Client.Organizations[Name].Repositories.GetAll(), forceDataRefresh);
+            return Repositories.SimpleCollectionLoad(Application.Client.Organizations[Name].Repositories.GetAll(), forceDataRefresh);
         }
     }
 }

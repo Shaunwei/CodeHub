@@ -7,8 +7,8 @@ namespace CodeHub.ViewControllers
 {
     public class UserRepositoriesViewController : RepositoriesViewController
     {
-        public UserRepositoriesViewController(string username, bool refresh = true)
-            : base(new RepositoriesViewModel(username), refresh: refresh)
+        public UserRepositoriesViewController(string username)
+            : base(new RepositoriesViewModel(username))
         {
             ShowOwner = false;
         }

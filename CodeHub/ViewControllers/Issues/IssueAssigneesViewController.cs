@@ -26,9 +26,9 @@ namespace CodeHub.ViewControllers
             ViewModel = new RepositoryCollaboratorsViewModel(user, repo);
 
             //Add a fake 'Unassigned' guy so we can always unassigned what we've done
-            ViewModel.BindCollection(x => x.Items, (ev) =>
+            ViewModel.BindCollection(x => x.Collaborators, (ev) =>
             {
-                var items = ViewModel.Items.ToList();
+                var items = ViewModel.Collaborators.ToList();
                 items.Insert(0, new BasicUserModel { Id = 0, Login = "Unassigned" });
 
                 RenderList(items, x => {
@@ -39,7 +39,7 @@ namespace CodeHub.ViewControllers
                             SelectedUser(x);
                     };
                     return e;
-                }, ViewModel.MoreItems);
+                }, ViewModel.Collaborators.MoreItems);
             });
         }
     }

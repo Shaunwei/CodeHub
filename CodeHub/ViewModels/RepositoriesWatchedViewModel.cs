@@ -10,9 +10,9 @@ namespace CodeHub.ViewModels
         {
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public override Task Load(bool forceDataRefresh)
         {
-            await this.SimpleCollectionLoad(Application.Client.AuthenticatedUser.Repositories.GetWatching(), forceDataRefresh);
+            return Repositories.SimpleCollectionLoad(Application.Client.AuthenticatedUser.Repositories.GetWatching(), forceDataRefresh);
         }
     }
 }

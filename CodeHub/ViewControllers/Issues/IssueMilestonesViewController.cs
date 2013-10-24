@@ -24,7 +24,7 @@ namespace CodeHub.ViewControllers
             SearchPlaceholder = "Search Milestones".t();
             ViewModel = new IssueMilestonesViewModel(user, repo);
 
-            BindCollection(ViewModel, x => {
+            BindCollection(ViewModel.Milestones, x => {
                 return new StyledStringElement(x.Title, () => {
                     if (MilestoneSelected != null)
                         MilestoneSelected(x);

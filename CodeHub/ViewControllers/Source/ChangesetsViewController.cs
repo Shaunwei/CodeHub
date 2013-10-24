@@ -30,8 +30,7 @@ namespace CodeHub.ViewControllers
 
         public ChangesetsViewController(string user, string slug, ulong pullRequestId) : this()
         {
-            //Controller = new PullRequestCommitsController(this, user, slug, pullRequestId);
-            throw new InvalidOperationException("SHIT");
+            ViewModel = new PullRequestCommitsViewModel(user, slug, pullRequestId);
             DoBinding();
         }
 

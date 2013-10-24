@@ -28,7 +28,7 @@ namespace CodeHub.ViewControllers
             ViewModel = new RepositoryLabelsViewModel(user, repo);
             SelectedLabels = new List<LabelModel>();
 
-            BindCollection(ViewModel, x => {
+            BindCollection(ViewModel.Labels, x => {
                 var e = new StyledStringElement(x.Name);
 
                 if (SelectedLabels.Exists(y => y.Name.Equals(x.Name)))

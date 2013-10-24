@@ -22,7 +22,7 @@ namespace CodeHub.ViewControllers
             NoItemsText = "Not Following Anyone".t();
             ViewModel = new UserFollowingsViewModel(user);
 
-            this.BindCollection(ViewModel, s => {
+            this.BindCollection(ViewModel.Users, s => {
                 StyledStringElement sse = new UserElement(s.Login, string.Empty, string.Empty, s.AvatarUrl);
                 sse.Tapped += () => NavigationController.PushViewController(new ProfileViewController(s.Login), true);
                 return sse;

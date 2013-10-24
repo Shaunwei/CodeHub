@@ -26,9 +26,9 @@ namespace CodeHub.Controllers
             private set { SetProperty(ref _userModel, value); }
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            await Task.Run(() => this.RequestModel(Application.Client.Organizations[Name].Get(), forceDataRefresh, response => Organization = response.Data));
+            return Task.Run(() => this.RequestModel(Application.Client.Organizations[Name].Get(), forceDataRefresh, response => Organization = response.Data));
         }
 	}
 }

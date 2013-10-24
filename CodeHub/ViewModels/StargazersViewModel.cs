@@ -4,8 +4,18 @@ using System.Threading.Tasks;
 
 namespace CodeHub.ViewModels
 {
-    public class StargazersViewModel : CollectionViewModel<BasicUserModel>, ILoadableViewModel
+    public class StargazersViewModel : ViewModel, ILoadableViewModel
     {
+        private readonly CollectionViewModel<BasicUserModel> _stargazers = new CollectionViewModel<BasicUserModel>();
+
+        public CollectionViewModel<BasicUserModel> Stargazers
+        {
+            get
+            {
+                return _stargazers;
+            }
+        }
+
         public string User
         {
             get;
@@ -24,9 +34,9 @@ namespace CodeHub.ViewModels
             Repository = name;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            await this.SimpleCollectionLoad(Application.Client.Users[User].Repositories[Repository].GetStargazers(), forceDataRefresh);
+            return Stargazers.SimpleCollectionLoad(Application.Client.Users[User].Repositories[Repository].GetStargazers(), forceDataRefresh);
         }
     }
 }

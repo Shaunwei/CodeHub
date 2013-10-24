@@ -10,42 +10,47 @@ using System;
 
 namespace CodeHub.Controllers
 {
-    public class NotificationsViewModel : FilterableCollectionViewModel<NotificationModel, NotificationsFilterModel>, ILoadableViewModel
+    public class NotificationsViewModel : ViewModel, ILoadableViewModel
     {
-        private bool _loading;
+        private readonly FilterableCollectionViewModel<NotificationModel, NotificationsFilterModel> _notifications;
+        private bool _isLoading;
 
-        public bool Loading
+        public bool IsLoading
         {
-            get { return _loading; }
-            protected set { SetProperty(ref _loading, value); }
+            get { return _isLoading; }
+            protected set { SetProperty(ref _isLoading, value); }
+        }
+
+        public FilterableCollectionViewModel<NotificationModel, NotificationsFilterModel> Notifications
+        {
+            get { return _notifications; }
         }
 
         public NotificationsViewModel()
-            : base("Notifications")
         {
-            GroupingFunction = (n) => n.GroupBy(x => x.Repository.FullName);
+            _notifications = new FilterableCollectionViewModel<NotificationModel, NotificationsFilterModel>("Notifications");
+            _notifications.GroupingFunction = (n) => n.GroupBy(x => x.Repository.FullName);
+            _notifications.Bind(x => x.Filter, async () =>
+            {
+                IsLoading = true;
+                try
+                {
+                    await Load(true);
+                }
+                catch (Exception e)
+                {
+                }
+                finally
+                {
+                    IsLoading = false;
+                }
+            });
         }
 
-        protected override async void FilterChanged()
+        public Task Load(bool forceDataRefresh)
         {
-            Loading = true;
-            try
-            {
-                await Load(true);
-            }
-            catch (Exception e)
-            {
-            }
-            finally
-            {
-                Loading = false;
-            }
-        }
-
-        public async Task Load(bool forceDataRefresh)
-        {
-            await Task.Run(() => this.RequestModel(Application.Client.Notifications.GetAll(all: Filter.All, participating: Filter.Participating), forceDataRefresh, response => {
-                Items.Reset(response.Data);
+            return Task.Run(() => this.RequestModel(Application.Client.Notifications.GetAll(all: Notifications.Filter.All, participating: Notifications.Filter.Participating), forceDataRefresh, response => {
+                Notifications.Items.Reset(response.Data);
                 UpdateAccountNotificationsCount();
             }));
         }
@@ -59,8 +64,8 @@ namespace CodeHub.Controllers
                 model.Unread = false;
 
                 // Only remove if we're not looking at all
-                if (Filter.All == false)
-                    Items.Remove(model);
+                if (Notifications.Filter.All == false)
+                    Notifications.Items.Remove(model);
 
                 //Update the notifications count on the account
                 UpdateAccountNotificationsCount();
@@ -70,8 +75,8 @@ namespace CodeHub.Controllers
         private void UpdateAccountNotificationsCount()
         {
             // Only update if we're looking at 
-            if (Filter.All == false && Filter.Participating == false)
-                Application.Account.Notifications = Items.Sum(x => x.Unread ? 1 : 0);
+            if (Notifications.Filter.All == false && Notifications.Filter.Participating == false)
+                Application.Account.Notifications = Notifications.Items.Sum(x => x.Unread ? 1 : 0);
         }
     }
 }

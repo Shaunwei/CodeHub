@@ -31,8 +31,8 @@ namespace CodeHub.ViewControllers
             _viewSegment.ControlStyle = UISegmentedControlStyle.Bar;
             _segmentBarButton = new UIBarButtonItem(_viewSegment);
 
-            BindCollection(ViewModel, CreateElement);
-            ViewModel.Bind(x => x.Loading, Loading);
+            BindCollection(ViewModel.Notifications, CreateElement);
+            ViewModel.Bind(x => x.IsLoading, Loading);
         }
 
         private TaskCompletionSource<bool> _loadingSource;
@@ -57,7 +57,6 @@ namespace CodeHub.ViewControllers
                 _loadingSource = null;
             }
         }
-
 
         public override void ViewDidLoad()
         {
@@ -122,9 +121,9 @@ namespace CodeHub.ViewControllers
             _viewSegment.ValueChanged -= SegmentValueChanged;
 
             //Select which one is currently selected
-            if (ViewModel.Filter.Equals(NotificationsFilterModel.CreateUnreadFilter()))
+            if (ViewModel.Notifications.Filter.Equals(NotificationsFilterModel.CreateUnreadFilter()))
                 _viewSegment.SelectedSegment = 0;
-            else if (ViewModel.Filter.Equals(NotificationsFilterModel.CreateParticipatingFilter()))
+            else if (ViewModel.Notifications.Filter.Equals(NotificationsFilterModel.CreateParticipatingFilter()))
                 _viewSegment.SelectedSegment = 1;
             else
                 _viewSegment.SelectedSegment = 2;
@@ -136,15 +135,15 @@ namespace CodeHub.ViewControllers
         {
             if (_viewSegment.SelectedSegment == 0)
             {
-                ViewModel.ApplyFilter(NotificationsFilterModel.CreateUnreadFilter(), true);
+                ViewModel.Notifications.ApplyFilter(NotificationsFilterModel.CreateUnreadFilter(), true);
             }
             else if (_viewSegment.SelectedSegment == 1)
             {
-                ViewModel.ApplyFilter(NotificationsFilterModel.CreateParticipatingFilter(), true);
+                ViewModel.Notifications.ApplyFilter(NotificationsFilterModel.CreateParticipatingFilter(), true);
             }
             else if (_viewSegment.SelectedSegment == 2)
             {
-                ViewModel.ApplyFilter(NotificationsFilterModel.CreateAllFilter(), true);
+                ViewModel.Notifications.ApplyFilter(NotificationsFilterModel.CreateAllFilter(), true);
             }
         }
 

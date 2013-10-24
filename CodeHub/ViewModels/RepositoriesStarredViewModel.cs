@@ -10,12 +10,9 @@ namespace CodeHub.ViewModels
         {
         }
 
-        public override async Task Load(bool forceDataRefresh)
+        public override Task Load(bool forceDataRefresh)
         {
-            await Task.Run(() => this.RequestModel(Application.Client.AuthenticatedUser.Repositories.GetStarred(), forceDataRefresh, response => {
-                Items.Reset(response.Data);
-                this.CreateMore(response, m => MoreItems = m, d => Items.AddRange(d));
-            }));
+            return Repositories.SimpleCollectionLoad(Application.Client.AuthenticatedUser.Repositories.GetStarred(), forceDataRefresh);
         }
     }
 }

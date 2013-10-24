@@ -47,7 +47,7 @@ namespace CodeHub.ViewModels
             PullRequestId = pullRequestId;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
             var pullRequest = Application.Client.Users[User].Repositories[Repo].PullRequests[PullRequestId].Get();
             var commentsRequest = Application.Client.Users[User].Repositories[Repo].Issues[PullRequestId].GetComments();
@@ -59,7 +59,7 @@ namespace CodeHub.ViewModels
                 this.CreateMore(response, m => Comments.MoreItems = m, d => Comments.Items.AddRange(d));
             }));
 
-            await t1;
+            return t1;
         }
 
         public async Task AddComment(string text)

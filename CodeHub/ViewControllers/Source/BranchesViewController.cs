@@ -19,7 +19,7 @@ namespace CodeHub.ViewControllers
             NoItemsText = "No Branches".t();
             ViewModel = new BranchesViewModel(username, slug);
 
-            BindCollection(ViewModel, x => x.Items, x => {
+            BindCollection(ViewModel, x => x.Branches, x => {
                 return new StyledStringElement(x.Name, () => NavigationController.PushViewController(new SourceViewController(ViewModel.Username, ViewModel.Repository, x.Name), true));
             });
         }

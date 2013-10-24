@@ -7,65 +7,66 @@ using CodeHub.Filters.Models;
 using CodeFramework.ViewModels;
 using System.Threading.Tasks;
 using CodeHub.ViewModels;
+using CodeFramework;
 
 namespace CodeHub.Controllers
 {
-    public class IssuesViewModel : FilterableCollectionViewModel<IssueModel, IssuesFilterModel>, ILoadableViewModel
+    public class IssuesViewModel : ViewModel, ILoadableViewModel
     {
+        private readonly FilterableCollectionViewModel<IssueModel, IssuesFilterModel> _issues;
+
+        public FilterableCollectionViewModel<IssueModel, IssuesFilterModel> Issues
+        {
+            get { return _issues; }
+        }
+
         public string User { get; private set; }
         public string Slug { get; private set; }
 
         public IssuesViewModel(string user, string slug)
-            : base("IssuesViewModel")
         {
             User = user;
             Slug = slug;
+
+            _issues = new FilterableCollectionViewModel<IssueModel, IssuesFilterModel>("IssuesViewModel");
+            _issues.GroupingFunction = GroupModel;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            string direction = Filter.Ascending ? "asc" : "desc";
-            string state = Filter.Open ? "open" : "closed";
-            string sort = Filter.SortType == IssuesFilterModel.Sort.None ? null : Filter.SortType.ToString().ToLower();
-            string labels = string.IsNullOrEmpty(Filter.Labels) ? null : Filter.Labels;
-            string assignee = string.IsNullOrEmpty(Filter.Assignee) ? null : Filter.Assignee;
-            string creator = string.IsNullOrEmpty(Filter.Creator) ? null : Filter.Creator;
-            string mentioned = string.IsNullOrEmpty(Filter.Mentioned) ? null : Filter.Mentioned;
+            string direction = _issues.Filter.Ascending ? "asc" : "desc";
+            string state = _issues.Filter.Open ? "open" : "closed";
+            string sort = _issues.Filter.SortType == IssuesFilterModel.Sort.None ? null : _issues.Filter.SortType.ToString().ToLower();
+            string labels = string.IsNullOrEmpty(_issues.Filter.Labels) ? null : _issues.Filter.Labels;
+            string assignee = string.IsNullOrEmpty(_issues.Filter.Assignee) ? null : _issues.Filter.Assignee;
+            string creator = string.IsNullOrEmpty(_issues.Filter.Creator) ? null : _issues.Filter.Creator;
+            string mentioned = string.IsNullOrEmpty(_issues.Filter.Mentioned) ? null : _issues.Filter.Mentioned;
 
             var request = Application.Client.Users[User].Repositories[Slug].Issues.GetAll(sort: sort, labels: labels, state: state, direction: direction, 
                                                                                           assignee: assignee, creator: creator, mentioned: mentioned);
-
-            await Task.Run(() => this.RequestModel(request, forceDataRefresh, response => {
-                Items.Reset(response.Data);
-                this.CreateMore(response, m => MoreItems = m, d => Items.AddRange(d));
-            }));
+            return Issues.SimpleCollectionLoad(request, forceDataRefresh);
         }
 
-        protected override void FilterChanged()
+        private IEnumerable<IGrouping<string, IssueModel>> GroupModel(IEnumerable<IssueModel> model)
         {
-            throw new NotImplementedException();
-        }
-
-        protected List<IGrouping<string, IssueModel>> GroupModel(List<IssueModel> model, IssuesFilterModel filter)
-        {
-            var order = filter.SortType;
+            var order = _issues.Filter.SortType;
             if (order == IssuesFilterModel.Sort.Comments)
             {
-                var a = filter.Ascending ? model.OrderBy(x => x.Comments) : model.OrderByDescending(x => x.Comments);
-                var g = a.GroupBy(x => IntegerCeilings.First(r => r > x.Comments)).ToList();
-                return CreateNumberedGroup(g, "Comments");
+                var a = _issues.Filter.Ascending ? model.OrderBy(x => x.Comments) : model.OrderByDescending(x => x.Comments);
+                var g = a.GroupBy(x => FilterGroup.IntegerCeilings.First(r => r > x.Comments)).ToList();
+                return FilterGroup.CreateNumberedGroup(g, "Comments");
             }
             else if (order == IssuesFilterModel.Sort.Updated)
             {
-                var a = filter.Ascending ? model.OrderBy(x => x.UpdatedAt) : model.OrderByDescending(x => x.UpdatedAt);
-                var g = a.GroupBy(x => IntegerCeilings.First(r => r > x.UpdatedAt.TotalDaysAgo()));
-                return CreateNumberedGroup(g, "Days Ago", "Updated");
+                var a = _issues.Filter.Ascending ? model.OrderBy(x => x.UpdatedAt) : model.OrderByDescending(x => x.UpdatedAt);
+                var g = a.GroupBy(x => FilterGroup.IntegerCeilings.First(r => r > x.UpdatedAt.TotalDaysAgo()));
+                return FilterGroup.CreateNumberedGroup(g, "Days Ago", "Updated");
             }
             else if (order == IssuesFilterModel.Sort.Created)
             {
-                var a = filter.Ascending ? model.OrderBy(x => x.CreatedAt) : model.OrderByDescending(x => x.CreatedAt);
-                var g = a.GroupBy(x => IntegerCeilings.First(r => r > x.CreatedAt.TotalDaysAgo()));
-                return CreateNumberedGroup(g, "Days Ago", "Created");
+                var a = _issues.Filter.Ascending ? model.OrderBy(x => x.CreatedAt) : model.OrderByDescending(x => x.CreatedAt);
+                var g = a.GroupBy(x => FilterGroup.IntegerCeilings.First(r => r > x.CreatedAt.TotalDaysAgo()));
+                return FilterGroup.CreateNumberedGroup(g, "Days Ago", "Created");
             }
 
             return null;
@@ -75,22 +76,22 @@ namespace CodeHub.Controllers
         {
             if (!DoesIssueBelong(issue))
                 return;
-            Items.Add(issue);
+            Issues.Items.Add(issue);
         }
 
         public void UpdateIssue(IssueModel issue)
         {
             throw new NotImplementedException();
-            Items.Remove(issue);
+            Issues.Items.Remove(issue);
             if (DoesIssueBelong(issue))
-                Items.Add(issue);
+                Issues.Items.Add(issue);
         }
 
         private bool DoesIssueBelong(IssueModel model)
         {
-            if (Filter == null)
+            if (Issues.Filter == null)
                 return true;
-            if (Filter.Open != model.State.Equals("open"))
+            if (Issues.Filter.Open != model.State.Equals("open"))
                 return false;
             return true;
         }

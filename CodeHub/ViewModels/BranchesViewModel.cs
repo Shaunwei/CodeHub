@@ -24,7 +24,7 @@ namespace CodeHub.ViewModels
             private set;
         }
 
-        public CollectionViewModel<BranchModel> Items
+        public CollectionViewModel<BranchModel> Branches
         {
             get { return _items; }
         }
@@ -35,9 +35,9 @@ namespace CodeHub.ViewModels
             Repository = repository;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            await Items.SimpleCollectionLoad(Application.Client.Users[Username].Repositories[Repository].GetBranches(), forceDataRefresh);
+            return Branches.SimpleCollectionLoad(Application.Client.Users[Username].Repositories[Repository].GetBranches(), forceDataRefresh);
         }
     }
 }

@@ -33,7 +33,7 @@ namespace CodeHub.ViewControllers
         private void NewGist()
         {
             var ctrl = new CreateGistViewController();
-            ctrl.Created = (newGist) =>((AccountGistsViewModel)ViewModel).Items.Insert(0, newGist);
+            ctrl.Created = (newGist) =>((AccountGistsViewModel)ViewModel).Gists.Items.Insert(0, newGist);
             NavigationController.PushViewController(ctrl, true);
         }
     }

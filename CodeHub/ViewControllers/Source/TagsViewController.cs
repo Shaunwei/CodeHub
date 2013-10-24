@@ -20,7 +20,7 @@ namespace CodeHub.ViewControllers
             EnableSearch = true;
             ViewModel = new TagsViewModel(user, slug);
 
-            BindCollection(ViewModel, x => {
+            BindCollection(ViewModel.Tags, x => {
                 return new StyledStringElement(x.Name, () => NavigationController.PushViewController(new SourceViewController(ViewModel.Username, ViewModel.Repository, x.Commit.Sha), true));
             });
         }

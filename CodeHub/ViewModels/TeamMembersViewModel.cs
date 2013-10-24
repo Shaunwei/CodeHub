@@ -5,8 +5,18 @@ using CodeHub.ViewModels;
 
 namespace CodeHub.ViewModels
 {
-    public class TeamMembersViewModel : CollectionViewModel<BasicUserModel>, ILoadableViewModel
+    public class TeamMembersViewModel : ViewModel, ILoadableViewModel
     {
+        private readonly CollectionViewModel<BasicUserModel> _users = new CollectionViewModel<BasicUserModel>();
+
+        public CollectionViewModel<BasicUserModel> Users
+        {
+            get
+            {
+                return _users;
+            }
+        }
+
         public ulong Id
         {
             get;
@@ -18,9 +28,9 @@ namespace CodeHub.ViewModels
             Id = id;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            await this.SimpleCollectionLoad(Application.Client.Teams[Id].GetMembers(), forceDataRefresh);
+            return Users.SimpleCollectionLoad(Application.Client.Teams[Id].GetMembers(), forceDataRefresh);
         }
     }
 }

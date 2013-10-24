@@ -5,8 +5,15 @@ using CodeHub.ViewModels;
 
 namespace CodeHub.ViewModels
 {
-    public class TeamsViewModel : CollectionViewModel<TeamShortModel>, ILoadableViewModel
+    public class TeamsViewModel : ViewModel, ILoadableViewModel
     {
+        private readonly CollectionViewModel<TeamShortModel> _teams = new CollectionViewModel<TeamShortModel>();
+
+        public CollectionViewModel<TeamShortModel> Teams
+        {
+            get { return _teams; }
+        }
+
         public string OrganizationName
         {
             get;
@@ -18,9 +25,9 @@ namespace CodeHub.ViewModels
             OrganizationName = name;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            await this.SimpleCollectionLoad(Application.Client.Organizations[OrganizationName].GetTeams(), forceDataRefresh);
+            return Teams.SimpleCollectionLoad(Application.Client.Organizations[OrganizationName].GetTeams(), forceDataRefresh);
         }
     }
 }

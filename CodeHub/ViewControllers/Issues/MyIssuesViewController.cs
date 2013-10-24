@@ -23,12 +23,13 @@ namespace CodeHub.ViewControllers
         }
 
         public MyIssuesViewController()
-            : base(new MyIssuesViewModel())
         {
             _viewSegment = new UISegmentedControl(new string[] { "Open".t(), "Closed".t(), "Custom".t() });
             _viewSegment.ControlStyle = UISegmentedControlStyle.Bar;
             _segmentBarButton = new UIBarButtonItem(_viewSegment);
 
+            ViewModel = new MyIssuesViewModel();
+            BindCollection(ViewModel.Issues, CreateElement);
             ViewModel.Bind(x => x.IsLoading, Loading);
         }
 
@@ -80,9 +81,9 @@ namespace CodeHub.ViewControllers
             _viewSegment.ValueChanged -= SegmentValueChanged;
 
             //Select which one is currently selected
-            if (ViewModel.Filter.Equals(MyIssuesFilterModel.CreateOpenFilter()))
+            if (ViewModel.Issues.Filter.Equals(MyIssuesFilterModel.CreateOpenFilter()))
                 _viewSegment.SelectedSegment = 0;
-            else if (ViewModel.Filter.Equals(MyIssuesFilterModel.CreateClosedFilter()))
+            else if (ViewModel.Issues.Filter.Equals(MyIssuesFilterModel.CreateClosedFilter()))
                 _viewSegment.SelectedSegment = 1;
             else
                 _viewSegment.SelectedSegment = 2;
@@ -94,15 +95,15 @@ namespace CodeHub.ViewControllers
         {
             if (_viewSegment.SelectedSegment == 0)
             {
-                ViewModel.ApplyFilter(MyIssuesFilterModel.CreateOpenFilter(), true);
+                ViewModel.Issues.ApplyFilter(MyIssuesFilterModel.CreateOpenFilter(), true);
             }
             else if (_viewSegment.SelectedSegment == 1)
             {
-                ViewModel.ApplyFilter(MyIssuesFilterModel.CreateClosedFilter(), true);
+                ViewModel.Issues.ApplyFilter(MyIssuesFilterModel.CreateClosedFilter(), true);
             }
             else if (_viewSegment.SelectedSegment == 2)
             {
-                var filter = new  MyIssuesFilterViewController(ViewModel);
+                var filter = new MyIssuesFilterViewController(ViewModel.Issues);
                 var nav = new UINavigationController(filter);
                 PresentViewController(nav, true, null);
             }

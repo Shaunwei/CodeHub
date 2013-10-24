@@ -18,8 +18,7 @@ namespace CodeHub.ViewControllers
             protected set { base.ViewModel = value; }
         }
 
-        public RepositoriesViewController(RepositoriesViewModel viewModel, bool refresh = true)
-            : base(refresh: refresh)
+        public RepositoriesViewController(RepositoriesViewModel viewModel)
         {
             ShowOwner = false;
             EnableFilter = true;
@@ -28,7 +27,7 @@ namespace CodeHub.ViewControllers
             NoItemsText = "No Repositories".t();
             ViewModel = viewModel;
 
-            BindCollection(ViewModel, CreateElement);
+            BindCollection(ViewModel.Repositories, CreateElement);
         }
 
         protected Element CreateElement(RepositoryModel repo)
@@ -42,7 +41,7 @@ namespace CodeHub.ViewControllers
 
         protected override FilterViewController CreateFilterController()
         {
-            return new CodeHub.Filters.ViewControllers.RepositoriesFilterViewController(ViewModel);
+            return new CodeHub.Filters.ViewControllers.RepositoriesFilterViewController(ViewModel.Repositories);
         }
     }
 }

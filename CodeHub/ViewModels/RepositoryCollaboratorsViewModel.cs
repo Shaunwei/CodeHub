@@ -5,8 +5,15 @@ using CodeHub.ViewModels;
 
 namespace CodeHub.Controllers
 {
-    public class RepositoryCollaboratorsViewModel : CollectionViewModel<BasicUserModel>, ILoadableViewModel
+    public class RepositoryCollaboratorsViewModel : ViewModel, ILoadableViewModel
     {
+        private readonly CollectionViewModel<BasicUserModel> _collaborators = new CollectionViewModel<BasicUserModel>();
+
+        public CollectionViewModel<BasicUserModel> Collaborators
+        {
+            get { return _collaborators; }
+        }
+
         public string Username 
         { 
             get; 
@@ -25,9 +32,9 @@ namespace CodeHub.Controllers
             Repository = repository;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            await this.SimpleCollectionLoad(Application.Client.Users[Username].Repositories[Repository].GetCollaborators(), forceDataRefresh);
+            return Collaborators.SimpleCollectionLoad(Application.Client.Users[Username].Repositories[Repository].GetCollaborators(), forceDataRefresh);
         }
     }
 }

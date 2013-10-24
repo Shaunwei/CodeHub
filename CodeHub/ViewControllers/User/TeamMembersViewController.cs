@@ -25,7 +25,7 @@ namespace CodeHub.ViewControllers
             NoItemsText = "No Members".t();
             ViewModel = new TeamMembersViewModel(id);
 
-            BindCollection(ViewModel, s => {
+            BindCollection(ViewModel.Users, s => {
                 StyledStringElement sse = new UserElement(s.Login, string.Empty, string.Empty, s.AvatarUrl);
                 sse.Tapped += () => NavigationController.PushViewController(new ProfileViewController(s.Login), true);
                 return sse;

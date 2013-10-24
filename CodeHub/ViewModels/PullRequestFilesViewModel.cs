@@ -8,8 +8,15 @@ using System.Threading.Tasks;
 
 namespace CodeHub.ViewModels
 {
-    public class PullRequestFilesViewModel : CollectionViewModel<CommitModel.CommitFileModel>, ILoadableViewModel
+    public class PullRequestFilesViewModel : ViewModel, ILoadableViewModel
     {
+        private readonly CollectionViewModel<CommitModel.CommitFileModel> _files = new CollectionViewModel<CommitModel.CommitFileModel>();
+
+        public CollectionViewModel<CommitModel.CommitFileModel> Files
+        {
+            get { return _files; }
+        }
+
         public ulong PullRequestId { get; private set; }
         public string Username { get; private set; }
         public string Repository { get; private set; }
@@ -21,9 +28,9 @@ namespace CodeHub.ViewModels
             PullRequestId = pullRequestId;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            await this.SimpleCollectionLoad(Application.Client.Users[Username].Repositories[Repository].PullRequests[PullRequestId].GetFiles(), forceDataRefresh);
+            return Files.SimpleCollectionLoad(Application.Client.Users[Username].Repositories[Repository].PullRequests[PullRequestId].GetFiles(), forceDataRefresh);
         }
     }
 }

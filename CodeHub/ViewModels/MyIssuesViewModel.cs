@@ -7,11 +7,13 @@ using CodeFramework.ViewModels;
 using System.Threading.Tasks;
 using CodeHub.ViewModels;
 using CodeFramework.Utils;
+using CodeFramework;
 
 namespace CodeHub.ViewModels
 {
-    public class MyIssuesViewModel : FilterableCollectionViewModel<IssueModel, MyIssuesFilterModel>, ILoadableViewModel
+    public class MyIssuesViewModel : ViewModel, ILoadableViewModel
     {
+        private readonly FilterableCollectionViewModel<IssueModel, MyIssuesFilterModel> _issues;
         private bool _isLoading;
 
         public bool IsLoading
@@ -20,68 +22,69 @@ namespace CodeHub.ViewModels
             protected set { SetProperty(ref _isLoading, value); }
         }
 
-        public MyIssuesViewModel()
-            : base("MyIssues")
+        public FilterableCollectionViewModel<IssueModel, MyIssuesFilterModel> Issues
         {
-            GroupingFunction = Group;
+            get { return _issues; }
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public MyIssuesViewModel()
         {
-            string filter = Filter.FilterType.ToString().ToLower();
-            string direction = Filter.Ascending ? "asc" : "desc";
-            string state = Filter.Open ? "open" : "closed";
-            string sort = Filter.SortType == MyIssuesFilterModel.Sort.None ? null : Filter.SortType.ToString().ToLower();
-            string labels = string.IsNullOrEmpty(Filter.Labels) ? null : Filter.Labels;
+            _issues = new FilterableCollectionViewModel<IssueModel, MyIssuesFilterModel>("MyIssues");
+            _issues.GroupingFunction = Group;
+            _issues.Bind(x => x.Filter, async () =>
+            {
+                try
+                {
+                    IsLoading = true;
+                    await Load(true);
+                }
+                catch (Exception e)
+                {
+                    //Do nothing...
+                }
+                finally
+                {
+                    IsLoading = false;
+                }
+            });
+           
+        }
+
+        public Task Load(bool forceDataRefresh)
+        {
+            string filter = Issues.Filter.FilterType.ToString().ToLower();
+            string direction = Issues.Filter.Ascending ? "asc" : "desc";
+            string state = Issues.Filter.Open ? "open" : "closed";
+            string sort = Issues.Filter.SortType == MyIssuesFilterModel.Sort.None ? null : Issues.Filter.SortType.ToString().ToLower();
+            string labels = string.IsNullOrEmpty(Issues.Filter.Labels) ? null : Issues.Filter.Labels;
 
             var request = Application.Client.AuthenticatedUser.Issues.GetAll(sort: sort, labels: labels, state: state, direction: direction, filter: filter);
-            await Task.Run(() => this.RequestModel(request, forceDataRefresh, response => {
-                Items.Reset(response.Data);
-                this.CreateMore(response, m => MoreItems = m, d => Items.AddRange(d));
-            }));
+            return Issues.SimpleCollectionLoad(request, forceDataRefresh);
         }
         
         private List<IGrouping<string, IssueModel>> Group(IEnumerable<IssueModel> model)
         {
-            var order = Filter.SortType;
+            var order = Issues.Filter.SortType;
             if (order == MyIssuesFilterModel.Sort.Comments)
             {
-                var a = Filter.Ascending ? model.OrderBy(x => x.Comments) : model.OrderByDescending(x => x.Comments);
-                var g = a.GroupBy(x => IntegerCeilings.First(r => r > x.Comments)).ToList();
-                return CreateNumberedGroup(g, "Comments");
+                var a = Issues.Filter.Ascending ? model.OrderBy(x => x.Comments) : model.OrderByDescending(x => x.Comments);
+                var g = a.GroupBy(x => FilterGroup.IntegerCeilings.First(r => r > x.Comments)).ToList();
+                return FilterGroup.CreateNumberedGroup(g, "Comments");
             }
             else if (order == MyIssuesFilterModel.Sort.Updated)
             {
-                var a = Filter.Ascending ? model.OrderBy(x => x.UpdatedAt) : model.OrderByDescending(x => x.UpdatedAt);
-                var g = a.GroupBy(x => IntegerCeilings.First(r => r > x.UpdatedAt.TotalDaysAgo()));
-                return CreateNumberedGroup(g, "Days Ago", "Updated");
+                var a = Issues.Filter.Ascending ? model.OrderBy(x => x.UpdatedAt) : model.OrderByDescending(x => x.UpdatedAt);
+                var g = a.GroupBy(x => FilterGroup.IntegerCeilings.First(r => r > x.UpdatedAt.TotalDaysAgo()));
+                return FilterGroup.CreateNumberedGroup(g, "Days Ago", "Updated");
             }
             else if (order == MyIssuesFilterModel.Sort.Created)
             {
-                var a = Filter.Ascending ? model.OrderBy(x => x.CreatedAt) : model.OrderByDescending(x => x.CreatedAt);
-                var g = a.GroupBy(x => IntegerCeilings.First(r => r > x.CreatedAt.TotalDaysAgo()));
-                return CreateNumberedGroup(g, "Days Ago", "Created");
+                var a = Issues.Filter.Ascending ? model.OrderBy(x => x.CreatedAt) : model.OrderByDescending(x => x.CreatedAt);
+                var g = a.GroupBy(x => FilterGroup.IntegerCeilings.First(r => r > x.CreatedAt.TotalDaysAgo()));
+                return FilterGroup.CreateNumberedGroup(g, "Days Ago", "Created");
             }
 
             return null;
-        }
-
-        protected override async void FilterChanged()
-        {
-            IsLoading = true;
-
-            try
-            {
-                await Load(true);
-            }
-            catch (Exception e)
-            {
-                //Do nothing...
-            }
-            finally
-            {
-                IsLoading = false;
-            }
         }
     }
 }

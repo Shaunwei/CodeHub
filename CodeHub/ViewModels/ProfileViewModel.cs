@@ -27,9 +27,9 @@ namespace CodeHub.Controllers
             Username = username;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            await Task.Run(() => this.RequestModel(Application.Client.Users[Username].Get(), forceDataRefresh, response => User = response.Data));
+            return Task.Run(() => this.RequestModel(Application.Client.Users[Username].Get(), forceDataRefresh, response => User = response.Data));
         }
     }
 }

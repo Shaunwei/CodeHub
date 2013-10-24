@@ -19,7 +19,7 @@ namespace CodeHub.ViewControllers
             NoItemsText = "No Files".t();
             ViewModel = new PullRequestFilesViewModel(username, repository, id);
 
-            BindCollection(ViewModel, x => {
+            BindCollection(ViewModel.Files, x => {
                 var name = x.Filename.Substring(x.Filename.LastIndexOf("/") + 1);
                 var el = new StyledStringElement(name, x.Status, MonoTouch.UIKit.UITableViewCellStyle.Subtitle);
                 el.Image = Images.File;

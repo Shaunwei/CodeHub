@@ -4,8 +4,15 @@ using System.Threading.Tasks;
 
 namespace CodeHub.ViewModels
 {
-    public class UserFollowersViewModel : CollectionViewModel<BasicUserModel>, ILoadableViewModel
+    public class UserFollowersViewModel : ViewModel, ILoadableViewModel
     {
+        private readonly CollectionViewModel<BasicUserModel> _users = new CollectionViewModel<BasicUserModel>();
+
+        public CollectionViewModel<BasicUserModel> Users
+        {
+            get { return _users; }
+        }
+
         public string Name
         {
             get;
@@ -17,9 +24,9 @@ namespace CodeHub.ViewModels
             Name = name;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            await this.SimpleCollectionLoad(Application.Client.Users[Name].GetFollowers(), forceDataRefresh);
+            return Users.SimpleCollectionLoad(Application.Client.Users[Name].GetFollowers(), forceDataRefresh);
         }
     }
 }

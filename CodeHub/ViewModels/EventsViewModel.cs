@@ -9,13 +9,20 @@ using CodeHub.ViewModels;
 
 namespace CodeHub.ViewModels
 {
-    public abstract class EventsViewModel : CollectionViewModel<EventModel>, ILoadableViewModel
+    public abstract class EventsViewModel : ViewModel, ILoadableViewModel
     {
-        public async Task Load(bool forceDataRefresh)
+        private readonly CollectionViewModel<EventModel> _events = new CollectionViewModel<EventModel>();
+
+        public CollectionViewModel<EventModel> Events
         {
-            await Task.Run(() => this.RequestModel(CreateRequest(0, 100), forceDataRefresh, response => {
-                Items.Reset(ExpandConsolidatedEvents(response.Data));
-                this.CreateMore(response, m => MoreItems = m, d => Items.AddRange(ExpandConsolidatedEvents(d)));
+            get { return _events; }
+        }
+
+        public Task Load(bool forceDataRefresh)
+        {
+            return Task.Run(() => this.RequestModel(CreateRequest(0, 100), forceDataRefresh, response => {
+                Events.Items.Reset(ExpandConsolidatedEvents(response.Data));
+                this.CreateMore(response, m => Events.MoreItems = m, d => Events.Items.AddRange(ExpandConsolidatedEvents(d)));
             }));
         }
         
@@ -52,7 +59,7 @@ namespace CodeHub.ViewModels
                 }
             });
 
-            return events;
+            return newEvents;
         }
 
         protected abstract GitHubRequest<List<EventModel>> CreateRequest(int page, int perPage);

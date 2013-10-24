@@ -20,7 +20,7 @@ namespace CodeHub.ViewControllers
             Title = name;
             ViewModel = new OrganizationMembersViewModel(name);
 
-            BindCollection(ViewModel, s => {
+            BindCollection(ViewModel.Members, s => {
                 StyledStringElement sse = new UserElement(s.Login, string.Empty, string.Empty, s.AvatarUrl);
                 sse.Tapped += () => NavigationController.PushViewController(new ProfileViewController(s.Login), true);
                 return sse;

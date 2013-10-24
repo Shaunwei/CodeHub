@@ -49,11 +49,11 @@ namespace CodeHub.ViewModels
             Repository = repository;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
             var t1 = Task.Run(() => this.RequestModel(Application.Client.Users[User].Repositories[Repository].Commits[Node].Get(), forceDataRefresh, response => Changeset = response.Data));
             FireAndForgetTask.Start(() => Comments.SimpleCollectionLoad(Application.Client.Users[User].Repositories[Repository].Commits[Node].Comments.GetAll(), forceDataRefresh));
-            await t1;
+            return t1;
         }
 
         public async Task AddComment(string text)

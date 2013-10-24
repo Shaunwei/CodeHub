@@ -35,9 +35,9 @@ namespace CodeHub.ViewModels
             Repository = repository;
         }
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
-            await Commits.SimpleCollectionLoad(GetRequest(), forceDataRefresh);
+            return Commits.SimpleCollectionLoad(GetRequest(), forceDataRefresh);
         }
 
         protected virtual GitHubRequest<List<CommitModel>> GetRequest()

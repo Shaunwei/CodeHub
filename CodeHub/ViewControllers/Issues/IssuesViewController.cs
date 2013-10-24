@@ -21,8 +21,10 @@ namespace CodeHub.ViewControllers
         }
 
         public IssuesViewController(string user, string slug)
-            : base(new IssuesViewModel(user, slug))
         {
+            ViewModel = new IssuesViewModel(user, slug);
+            BindCollection(ViewModel.Issues, CreateElement);
+
             NavigationItem.RightBarButtonItem = new UIBarButtonItem(NavigationButton.Create(Theme.CurrentTheme.AddButton, () => {
                 var b = new IssueEditViewController(ViewModel.User, ViewModel.Slug) {
                     Success = (issue) => ViewModel.CreateIssue(issue)
@@ -59,11 +61,11 @@ namespace CodeHub.ViewControllers
             _viewSegment.ValueChanged -= SegmentValueChanged;
 
             //Select which one is currently selected
-            if (ViewModel.Filter.Equals(IssuesFilterModel.CreateOpenFilter()))
+            if (ViewModel.Issues.Filter.Equals(IssuesFilterModel.CreateOpenFilter()))
                 _viewSegment.SelectedSegment = 0;
-            else if (ViewModel.Filter.Equals(IssuesFilterModel.CreateClosedFilter()))
+            else if (ViewModel.Issues.Filter.Equals(IssuesFilterModel.CreateClosedFilter()))
                 _viewSegment.SelectedSegment = 1;
-            else if (ViewModel.Filter.Equals(IssuesFilterModel.CreateMineFilter(Application.Account.Username)))
+            else if (ViewModel.Issues.Filter.Equals(IssuesFilterModel.CreateMineFilter(Application.Account.Username)))
                 _viewSegment.SelectedSegment = 2;
             else
                 _viewSegment.SelectedSegment = 3;
@@ -75,19 +77,19 @@ namespace CodeHub.ViewControllers
         {
             if (_viewSegment.SelectedSegment == 0)
             {
-                ViewModel.ApplyFilter(IssuesFilterModel.CreateOpenFilter(), true);
+                ViewModel.Issues.ApplyFilter(IssuesFilterModel.CreateOpenFilter(), true);
             }
             else if (_viewSegment.SelectedSegment == 1)
             {
-                ViewModel.ApplyFilter(IssuesFilterModel.CreateClosedFilter(), true);
+                ViewModel.Issues.ApplyFilter(IssuesFilterModel.CreateClosedFilter(), true);
             }
             else if (_viewSegment.SelectedSegment == 2)
             {
-                ViewModel.ApplyFilter(IssuesFilterModel.CreateMineFilter(Application.Account.Username), true);
+                ViewModel.Issues.ApplyFilter(IssuesFilterModel.CreateMineFilter(Application.Account.Username), true);
             }
             else if (_viewSegment.SelectedSegment == 3)
             {
-                var filter = new IssuesFilterViewController(ViewModel);
+                var filter = new IssuesFilterViewController(ViewModel.Issues);
                 var nav = new UINavigationController(filter);
                 PresentViewController(nav, true, null);
             }

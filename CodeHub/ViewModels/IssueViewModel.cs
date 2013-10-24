@@ -43,7 +43,7 @@ namespace CodeHub.ViewModels
 
         public Action<IssueModel> ModelChanged;
 
-        public async Task Load(bool forceDataRefresh)
+        public Task Load(bool forceDataRefresh)
         {
             var t1 = Task.Run(() => this.RequestModel(Application.Client.Users[Username].Repositories[Repository].Issues[Id].Get(), forceDataRefresh, response => Issue = response.Data));
 
@@ -52,7 +52,7 @@ namespace CodeHub.ViewModels
                 this.CreateMore(response, m => Comments.MoreItems = m, d => Comments.Items.AddRange(d));
             }));
 
-            await t1;
+            return t1;
         }
 
         public IssueViewModel(string username, string repository, ulong id)
