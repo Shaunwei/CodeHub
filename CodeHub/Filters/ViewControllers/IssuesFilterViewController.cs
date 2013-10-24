@@ -73,7 +73,7 @@ namespace CodeHub.Filters.ViewControllers
                     (_sort = CreateEnumElement("Field", model.SortType)),
                     (_asc = new TrueFalseElement("Ascending", model.Ascending))
                 },
-                new Section() {
+                new Section(string.Empty, "Saving this filter as a default will save it only for this repository.") {
                     new StyledStringElement("Save as Default", () =>{
                         _filterController.ApplyFilter(CreateFilterModel(), true);
                         CloseViewController();

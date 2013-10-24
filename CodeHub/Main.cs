@@ -100,12 +100,7 @@ namespace CodeHub
                 TextShadowOffset = new UIOffset(0, 1) 
             });
 
-            UISegmentedControl.Appearance.SetTitleTextAttributes(new UITextAttributes { 
-                Font = UIFont.SystemFontOfSize(14f), 
-                TextColor = UIColor.FromRGB(87, 85, 85), 
-                TextShadowColor = UIColor.FromRGBA(255, 255, 255, 125), 
-                TextShadowOffset = new UIOffset(0, 1) 
-            }, UIControlState.Normal);
+            UISegmentedControl.Appearance.SetTitleTextAttributes(Theme.CurrentTheme.SegmentedControlText, UIControlState.Normal);
 
 //            try
 //            {

@@ -17,6 +17,20 @@ namespace CodeHub
             CodeFramework.Elements.NewsFeedElement.NameColor = theme.MainTitleColor;
         }
 
+        public UITextAttributes SegmentedControlText
+        {
+            get
+            {
+                return new UITextAttributes
+                { 
+                    Font = UIFont.SystemFontOfSize(14f), 
+                    TextColor = UIColor.FromRGB(87, 85, 85), 
+                    TextShadowColor = UIColor.FromRGBA(255, 255, 255, 125), 
+                    TextShadowOffset = new UIOffset(0, 1) 
+                };
+            }
+        }
+
         public UIImage BackButton { get { return UIImageHelper.FromFileAuto("Images/Buttons/back"); } }
         public UIImage ThreeLinesButton { get { return UIImageHelper.FromFileAuto("Images/Buttons/three_lines"); } }
         public UIImage CancelButton { get { return UIImageHelper.FromFileAuto("Images/Buttons/cancel"); } }

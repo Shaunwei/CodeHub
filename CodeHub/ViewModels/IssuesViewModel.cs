@@ -35,7 +35,7 @@ namespace CodeHub.Controllers
             User = user;
             Slug = slug;
 
-            _issues = new FilterableCollectionViewModel<IssueModel, IssuesFilterModel>("IssuesViewModel");
+            _issues = new FilterableCollectionViewModel<IssueModel, IssuesFilterModel>("IssuesViewModel:" + user + "/" + slug);
             _issues.GroupingFunction = GroupModel;
             _issues.Bind(x => x.Filter, async () =>
             {
