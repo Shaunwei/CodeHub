@@ -3,6 +3,7 @@ using GitHubSharp.Models;
 using CodeFramework.ViewModels;
 using CodeFramework.Utils;
 using System.Threading.Tasks;
+using System;
 
 namespace CodeHub.ViewModels
 {
@@ -66,6 +67,16 @@ namespace CodeHub.ViewModels
         {
             var comment = await Application.Client.ExecuteAsync(Application.Client.Users[User].Repositories[Repo].Issues[PullRequestId].CreateComment(text));
             Comments.Items.Add(comment.Data);
+        }
+
+        public async Task Merge()
+        {
+            var response = await Application.Client.ExecuteAsync(Application.Client.Users[User].Repositories[Repo].PullRequests[PullRequestId].Merge());
+            if (!response.Data.Merged)
+                throw new Exception(response.Data.Message);
+
+            var pullRequest = Application.Client.Users[User].Repositories[Repo].PullRequests[PullRequestId].Get();
+            await Task.Run(() => this.RequestModel(pullRequest, true, r => PullRequest = r.Data));
         }
     }
 }

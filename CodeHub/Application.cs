@@ -1,5 +1,6 @@
 using CodeHub.Data;
 using CodeFramework.Data;
+using System.Linq;
 
 namespace CodeHub
 {
@@ -44,10 +45,25 @@ namespace CodeHub
             Client = client;
             Client.Timeout = 1000 * 30;
 
+            CheckCacheSize(account.Cache);
+
             //Set the cache
             ClientCache = account.Cache;
             Client.Cache = new GitHubCache(account.Cache);
         }
+
+        private static void CheckCacheSize(CodeFramework.Cache.CacheProvider cache)
+        {
+            var totalCacheSize = cache.Sum(x => System.IO.File.Exists(x.Path) ? new System.IO.FileInfo(x.Path).Length : 0);
+            var totalCacheSizeMB = ((float)totalCacheSize / 1024f / 1024f);
+
+            if (totalCacheSizeMB > .5)
+            {
+                System.Console.WriteLine("Flushing cache due to size...");
+                cache.DeleteAll();
+            }
+        }
+
     }
 
     public class GitHubCache : GitHubSharp.ICache

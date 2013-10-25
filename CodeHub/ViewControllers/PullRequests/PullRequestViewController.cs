@@ -60,8 +60,10 @@ namespace CodeHub.ViewControllers
                 secDetails.Add(desc);
             }
 
+            var merged = (ViewModel.PullRequest.Merged == null || !ViewModel.PullRequest.Merged.Value) ? false : true;
+
             _split1.Value.Text1 = ViewModel.PullRequest.State;
-            _split1.Value.Text2 = (ViewModel.PullRequest.Merged == null || !ViewModel.PullRequest.Merged.Value) ? "Not Merged" : "Merged";
+            _split1.Value.Text2 = merged ? "Merged" : "Not Merged";
             secDetails.Add(_split1);
             root.Add(secDetails);
 
@@ -69,6 +71,36 @@ namespace CodeHub.ViewControllers
                 new StyledStringElement("Commits", () => NavigationController.PushViewController(new ChangesetsViewController(ViewModel.User, ViewModel.Repo, ViewModel.PullRequestId), true), Images.Commit),
                 new StyledStringElement("Files", () => NavigationController.PushViewController(new PullRequestFilesViewController(ViewModel.User, ViewModel.Repo, ViewModel.PullRequestId), true), Images.File),
             });
+
+            if (!merged)
+            {
+                MonoTouch.Foundation.NSAction mergeAction = async () =>
+                {
+                    try
+                    {
+                        await this.DoWorkTest("Merging...", () => ViewModel.Merge());
+                    }
+                    catch (Exception e)
+                    {
+                        MonoTouch.Utilities.ShowAlert("Unable to Merge", e.Message);
+                    }
+                };
+
+                if (ViewModel.PullRequest.Mergable == null)
+                {
+                    var el = new StyledStringElement("Merge".t(), mergeAction, Images.Fork);
+                    root.Add(new Section(null, "The mergable state is unknown and merging may not be successful.") { el });
+                }
+                else if (ViewModel.PullRequest.Mergable.Value)
+                {
+                    root.Add(new Section { new StyledStringElement("Merge".t(), mergeAction, Images.Fork) });
+                }
+                else
+                {
+                    root.Add(new Section { new StyledStringElement("Unable to merge!".t()) { Image = Images.Fork } });
+                }
+            }
+
 
             if (ViewModel.Comments.Items.Count > 0)
             {
