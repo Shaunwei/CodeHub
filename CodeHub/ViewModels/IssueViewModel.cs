@@ -10,7 +10,6 @@ namespace CodeHub.ViewModels
     public class IssueViewModel : ViewModel, ILoadableViewModel
     {
         private IssueModel _issueModel;
-        private string _renderedBody;
         private CollectionViewModel<IssueCommentModel> _comments = new CollectionViewModel<IssueCommentModel>();
 
         public ulong Id 

@@ -78,7 +78,6 @@ namespace CodeHub.Data
             ShowOrganizationsInEvents = true;
             ExpandOrganizations = true;
             ShowRepositoryDescriptionInList = true;
-            Organizations = new List<BasicUserModel>();
 		}
     }
 }
