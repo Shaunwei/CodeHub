@@ -45,8 +45,8 @@ namespace CodeHub
             Client.Timeout = 1000 * 30;
 
             //Set the cache
-            //ClientCache = account.Cache;
-            //Client.Cache = new GitHubCache(account.Cache);
+            ClientCache = account.Cache;
+            Client.Cache = new GitHubCache(account.Cache);
         }
     }
 

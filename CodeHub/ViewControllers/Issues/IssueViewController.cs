@@ -56,7 +56,15 @@ namespace CodeHub.ViewControllers
             if (!_firstShown)
             {
                 _firstShown = true;
-                await this.DoWorkTest("Loading...", () => ViewModel.Load(false));
+                try
+                {
+                    await this.DoWorkTest("Loading...", () => ViewModel.Load(false));
+                }
+                catch (Exception e)
+                {
+                    MonoTouch.Utilities.LogException(e);
+                    MonoTouch.Utilities.ShowAlert("Error", e.Message);
+                }
             }
         }
 
@@ -69,7 +77,14 @@ namespace CodeHub.ViewControllers
 
         protected override bool ShouldStartLoad(NSUrlRequest request, UIWebViewNavigationType navigationType)
         {
-            if (request.Url.AbsoluteString.StartsWith("codehub://add_comment"))
+            if (request.Url.AbsoluteString.StartsWith("codehub://ready"))
+            {
+                if (ViewModel.Issue != null)
+                    RenderIssue();
+                if (ViewModel.Comments.Items.Count > 0)
+                    RenderComments();
+            }
+            else if (request.Url.AbsoluteString.StartsWith("codehub://add_comment"))
             {
                 AddCommentTapped();
             }

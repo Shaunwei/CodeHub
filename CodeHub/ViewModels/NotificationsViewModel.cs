@@ -35,7 +35,7 @@ namespace CodeHub.Controllers
                 IsLoading = true;
                 try
                 {
-                    await Load(true);
+                    await Load(false);
                 }
                 catch (Exception e)
                 {

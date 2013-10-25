@@ -46,6 +46,18 @@
 				setComments([{"avatarUrl":"https://0.gravatar.com/avatar/1a359dbeb65b797f39f2af713d024ea8?d=https%3A%2F%2Fidenticons.github.com%2Ffc797c5a6b5537c045cd2ae03095f114.png&r=x","login":"slodge","updated_at":"12 hours ago","body":"<p>Why are PCL v4.6 and Profile 44 linked together?</p>\n\n<p>We don't have any solid information on what profiles will/won't be supported when Xamarin release their PCL support. At one point (July) one Xamarin employee indicated that we should move to profile 78 - which is why I posted http://slodge.blogspot.co.uk/2013/07/mvvmcross-wp7-tombstoned.html</p>\n\n<p>However, since then we have had no technical information - so we're staying with profile 104 until we do...</p>\n\n<p>Afaik currently Xamarin will support Profile 104 - and profile 78 projects will be able to consume profile 104 libraries - so we don't currently need to change anything.... but that's only \"afaik\"</p>\n"},{"avatarUrl":"https://2.gravatar.com/avatar/53d78f0c086cb23375849308b9b6bd43?d=https%3A%2F%2Fidenticons.github.com%2F24d8c8e908761d6cfb76dffdd0acc558.png&r=x","login":"xperiandri","updated_at":"11 hours ago","body":"<p>As far as I understand, Microsoft changed license only for PCL v4.6 which has only one profile - Profile44.\nMaybe I'm not right.</p>\n"},{"avatarUrl":"https://2.gravatar.com/avatar/f780d57997526876b0625e517c1e0884?d=https%3A%2F%2Fidenticons.github.com%2F5bb62948014c4be7f77fe27a1a06b63f.png&r=x","login":"Cheesebaron","updated_at":"10 hours ago","body":"<p>In the latest alpha, this is which profile Xamarin claim to have support for</p>\n\n<p></p>\n"}]);
 			});
 			*/
+			
+			function invokeNative(functionName, args) {
+			    var iframe = document.createElement('IFRAME');
+			    iframe.setAttribute('src', 'codehub://' + functionName + '#' + JSON.stringify(args));
+			    document.documentElement.appendChild(iframe);
+			    iframe.parentNode.removeChild(iframe);
+			    iframe = null;  
+			}
+			
+			$(function() {
+   				invokeNative("ready");
+			});
 		</script>
 		
 		<style>
