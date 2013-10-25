@@ -10,6 +10,7 @@ namespace CodeHub.ViewModels
     public class IssueViewModel : ViewModel, ILoadableViewModel
     {
         private IssueModel _issueModel;
+        private string _renderedBody;
         private CollectionViewModel<IssueCommentModel> _comments = new CollectionViewModel<IssueCommentModel>();
 
         public ulong Id 
@@ -53,6 +54,12 @@ namespace CodeHub.ViewModels
             }));
 
             return t1;
+        }
+
+        public string ConvertToMarkdown(string str)
+        {
+            var md = new MarkdownSharp.Markdown();
+            return md.Transform(str);
         }
 
         public IssueViewModel(string username, string repository, ulong id)

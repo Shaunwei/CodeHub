@@ -14,20 +14,18 @@ using CodeHub.ViewModels;
 
 namespace CodeHub.ViewControllers
 {
-    public class IssueViewController : ViewModelDrivenViewController
+    public class IssueViewController : WebViewController
     {
-        private readonly HeaderView _header;
-        private readonly SplitElement _split1;
-
         private bool _issueRemoved;
 
-        public new IssueViewModel ViewModel
+        public IssueViewModel ViewModel
         {
-            get { return (IssueViewModel)base.ViewModel; }
-            protected set { base.ViewModel = value; }
+            get;
+            protected set;
         }
 
         public IssueViewController(string user, string slug, ulong id)
+            : base(false)
         {
             Title = "Issue #" + id;
             ViewModel = new IssueViewModel(user, slug, id);
@@ -42,102 +40,99 @@ namespace CodeHub.ViewControllers
             }));
             NavigationItem.RightBarButtonItem.Enabled = false;
 
-            Style = UITableViewStyle.Grouped;
-            Root.UnevenRows = true;
-            _header = new HeaderView(View.Bounds.Width) { ShadowImage = false };
-            _split1 = new SplitElement(new SplitElement.Row { Image1 = Images.Cog, Image2 = Images.Milestone }) { BackgroundColor = UIColor.White };
+            ViewModel.Bind(x => x.Issue, RenderIssue);
+            ViewModel.BindCollection(x => x.Comments, (e) => RenderComments());
 
-            ViewModel.Bind(x => x.Issue, Render);
-            ViewModel.BindCollection(x => x.Comments, (e) => Render());
+            var path = System.IO.Path.Combine(NSBundle.MainBundle.BundlePath, "Issue.html");
+            LoadFile(path);
         }
 
-        public void Render()
-        {
-            //This means we've deleted it. Due to the code flow, render will get called after the update, regardless.
-            if (ViewModel.Issue == null)
-                return;
+        private bool _firstShown;
 
-            //We've loaded, we can edit
+        public override async void ViewWillAppear(bool animated)
+        {
+            base.ViewWillAppear(animated);
+
+            if (!_firstShown)
+            {
+                _firstShown = true;
+                await this.DoWorkTest("Loading...", () => ViewModel.Load(false));
+            }
+        }
+
+        protected override void OnLoadError(object sender, UIWebErrorArgs e)
+        {
+            MonoTouch.Utilities.LogException(new Exception(e.Error.Description));
+            MonoTouch.Utilities.ShowAlert("Error", e.Error.Description);
+            base.OnLoadError(sender, e);
+        }
+
+        protected override bool ShouldStartLoad(NSUrlRequest request, UIWebViewNavigationType navigationType)
+        {
+            if (request.Url.AbsoluteString.StartsWith("codehub://add_comment"))
+            {
+                AddCommentTapped();
+            }
+            else if (request.Url.AbsoluteString.StartsWith("codehub://assignee/"))
+            {
+                var name = request.Url.AbsoluteString.Substring("codehub://assignee/".Length);
+                if (!string.IsNullOrEmpty(name))
+                    NavigationController.PushViewController(new ProfileViewController(name), true);
+            }
+            else if (request.Url.AbsoluteString.StartsWith("file"))
+            {
+                return true;
+            }
+            else if (request.Url.AbsoluteString.StartsWith("http"))
+            {
+                try { UIApplication.SharedApplication.OpenUrl(request.Url); } catch { }
+            }
+
+            return false;
+        }
+
+        public void RenderComments()
+        {
+            var md = new MarkdownSharp.Markdown();
+
+            var comments = ViewModel.Comments.Select(x => new { 
+                avatarUrl = x.User.AvatarUrl, 
+                login = x.User.Login, 
+                updated_at = x.CreatedAt.ToDaysAgo(), 
+                body = md.Transform(x.Body)
+            });
+            var data = new RestSharp.Serializers.JsonSerializer().Serialize(comments.ToList());
+            Web.EvaluateJavascript("var a = " + data + "; setComments(a);");
+        }
+
+        public void RenderIssue()
+        {
             NavigationItem.RightBarButtonItem.Enabled = true;
 
-            var root = new RootElement(Title);
-            _header.Title = ViewModel.Issue.Title;
-            _header.Subtitle = "Updated " + (ViewModel.Issue.UpdatedAt).ToDaysAgo();
-            _header.SetNeedsDisplay();
-            root.Add(new Section(_header));
+            var state = ViewModel.Issue.State;
+            if (state == null)
+                state = "No State";
 
-            var secDetails = new Section();
-            if (!string.IsNullOrEmpty(ViewModel.Issue.Body))
-            {
-                var desc = new MultilinedElement(ViewModel.Issue.Body.Trim()) 
-                { 
-                    BackgroundColor = UIColor.White,
-                    CaptionColor = Theme.CurrentTheme.MainTitleColor, 
-                    ValueColor = Theme.CurrentTheme.MainTextColor
-                };
-                desc.CaptionFont = desc.ValueFont;
-                desc.CaptionColor = desc.ValueColor;
-                secDetails.Add(desc);
-            }
+            var milestone = ViewModel.Issue.Milestone;
+            var milestoneStr = milestone != null ? milestone.Title : "No Milestone";
+            var assignedTo = ViewModel.Issue.Assignee;
+            var assignedToStr = ViewModel.Issue.Assignee != null ? ViewModel.Issue.Assignee.Login : null;
 
-            _split1.Value.Text1 = ViewModel.Issue.State;
-            _split1.Value.Text2 = ViewModel.Issue.Milestone == null ? "No Milestone".t() : ViewModel.Issue.Milestone.Title;
-            secDetails.Add(_split1);
-
-            var responsible = new StyledStringElement(ViewModel.Issue.Assignee != null ? ViewModel.Issue.Assignee.Login : "Unassigned".t()) {
-                Font = StyledStringElement.DefaultDetailFont,
-                TextColor = StyledStringElement.DefaultDetailColor,
-                Image = Images.Person
+            var issue = new { state = state, 
+                milestone = milestoneStr, 
+                assigned_to = assignedToStr ?? "Unassigned", 
+                updated_at = "Updated " + ViewModel.Issue.UpdatedAt.ToDaysAgo(),
+                title = ViewModel.Issue.Title,
+                assigned_to_login = assignedToStr ?? ""
             };
 
-            if (ViewModel.Issue.Assignee != null)
-            {
-                responsible.Tapped += () => NavigationController.PushViewController(new ProfileViewController(ViewModel.Issue.Assignee.Login), true);
-                responsible.Accessory = UITableViewCellAccessory.DisclosureIndicator;
-            }
+            var data = new RestSharp.Serializers.JsonSerializer().Serialize(issue);
+            Web.EvaluateJavascript("var a = " + data + "; setData(a);");
 
-            secDetails.Add(responsible);
-            root.Add(secDetails);
+            var md = new MarkdownSharp.Markdown();
 
-            if (ViewModel.Comments.Items.Count > 0)
-            {
-                var commentsSec = new Section();
-                ViewModel.Comments.OrderBy(x => (x.CreatedAt)).ToList().ForEach(x => {
-                    if (!string.IsNullOrEmpty(x.Body))
-                        commentsSec.Add(new CommentElement {
-                            Name = x.User.Login,
-                            Time = x.CreatedAt.ToDaysAgo(),
-                            String = x.Body,
-                            Image = Theme.CurrentTheme.AnonymousUserImage,
-                            ImageUri = new Uri(x.User.AvatarUrl),
-                            BackgroundColor = UIColor.White,
-                        });
-                });
-
-                //Load more if there's more comments
-                if (ViewModel.Comments.MoreItems != null)
-                {
-                    var loadMore = new PaginateElement("Load More".t(), "Loading...".t(), 
-                                                       e => this.DoWorkNoHud(() => ViewModel.Comments.MoreItems(),
-                                                       x => Utilities.ShowAlert("Unable to load more!".t(), x.Message))) { AutoLoadOnVisible = false, Background = false };
-                    commentsSec.Add(loadMore);
-                }
-
-                if (commentsSec.Elements.Count > 0)
-                    root.Add(commentsSec);
-            }
-
-            
-            var addComment = new StyledStringElement("Add Comment") { Image = Images.Pencil };
-            addComment.Tapped += AddCommentTapped;
-            root.Add(new Section { addComment });
-            Root = root;
-
-//            if (_scrollToLastComment && _comments.Elements.Count > 0)
-//            {
-//                TableView.ScrollToRow(NSIndexPath.FromRowSection(_comments.Elements.Count - 1, 2), UITableViewScrollPosition.Top, true);
-//                _scrollToLastComment = false;
-//            }
+            var desc = FileSourceViewController.JavaScriptStringEncode(md.Transform(ViewModel.Issue.Body));
+            Web.EvaluateJavascript("var a = \"" + desc + "\"; setDescription(a);");
         }
 
         void EditingComplete(IssueModel model)

@@ -432,6 +432,8 @@
     <BundleResource Include="Images\Gist\user%402x.png" />
     <BundleResource Include="Images\Buttons\fork.png" />
     <BundleResource Include="Images\Buttons\fork%402x.png" />
+    <BundleResource Include="Resources\jquery.min.js" />
+    <BundleResource Include="Resources\Issue.html" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="Resources\iTunesArtwork.png" />
