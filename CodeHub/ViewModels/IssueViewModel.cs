@@ -57,7 +57,9 @@ namespace CodeHub.ViewModels
 
         public string ConvertToMarkdown(string str)
         {
-            var md = new MarkdownSharp.Markdown();
+            var options = new MarkdownSharp.MarkdownOptions();
+            options.AutoHyperlink = true;
+            var md = new MarkdownSharp.Markdown(options);
             return md.Transform(str);
         }
 

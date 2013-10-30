@@ -108,13 +108,11 @@ namespace CodeHub.ViewControllers
 
         public void RenderComments()
         {
-            var md = new MarkdownSharp.Markdown();
-
             var comments = ViewModel.Comments.Select(x => new { 
                 avatarUrl = x.User.AvatarUrl, 
                 login = x.User.Login, 
                 updated_at = x.CreatedAt.ToDaysAgo(), 
-                body = md.Transform(x.Body)
+                body = ViewModel.ConvertToMarkdown(x.Body)
             });
             var data = new RestSharp.Serializers.JsonSerializer().Serialize(comments.ToList());
             Web.EvaluateJavascript("var a = " + data + "; setComments(a);");

@@ -102,14 +102,6 @@ namespace CodeHub.Controllers
             Issues.Items.Add(issue);
         }
 
-        public void UpdateIssue(IssueModel issue)
-        {
-            throw new NotImplementedException();
-            Issues.Items.Remove(issue);
-            if (DoesIssueBelong(issue))
-                Issues.Items.Add(issue);
-        }
-
         private bool DoesIssueBelong(IssueModel model)
         {
             if (Issues.Filter == null)
