@@ -26,6 +26,11 @@ namespace CodeHub.ViewModels
             Username = username;
             Repository = repository;
             PullRequestId = pullRequestId;
+
+            _files.GroupingFunction = (x) => x.GroupBy(y => {
+                var filename = "/" + y.Filename;
+                return filename.Substring(0, filename.LastIndexOf("/") + 1);
+            }).OrderBy(y => y.Key);
         }
 
         public Task Load(bool forceDataRefresh)

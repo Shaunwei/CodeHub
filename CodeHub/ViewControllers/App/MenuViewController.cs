@@ -104,7 +104,11 @@ namespace CodeHub.ViewControllers
                 this.DoWorkNoHud(() =>
                 {
                     //Don't bother saving the result. This get's cached in memory so there's no reason to save it twice. Just save the number of entires
-                    Application.Account.Notifications = Application.Client.Execute(Application.Client.Notifications.GetAll()).Data.Count;
+                    var notificationRequest = Application.Client.Notifications.GetAll();
+                    notificationRequest.CheckIfModified = notificationRequest.RequestFromCache = false;
+
+
+                    Application.Account.Notifications = Application.Client.Execute(notificationRequest).Data.Count;
 
                     if (_notifications != null)
                     {
@@ -118,7 +122,10 @@ namespace CodeHub.ViewControllers
             {
                 this.DoWorkNoHud(() =>
                 {
-                    Application.Account.Organizations = Application.Client.Execute(Application.Client.AuthenticatedUser.GetOrganizations()).Data;
+                    var organizationRequest = Application.Client.AuthenticatedUser.GetOrganizations();
+                    organizationRequest.CheckIfModified = organizationRequest.RequestFromCache = false;
+
+                    Application.Account.Organizations = Application.Client.Execute(organizationRequest).Data;
                     BeginInvokeOnMainThread(() => CreateMenuRoot());
                 });
             }

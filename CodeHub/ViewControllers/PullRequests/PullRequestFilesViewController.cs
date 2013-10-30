@@ -1,6 +1,7 @@
 using CodeFramework.ViewControllers;
 using CodeHub.ViewModels;
 using MonoTouch.Dialog;
+using MonoTouch.UIKit;
 
 namespace CodeHub.ViewControllers
 {
@@ -28,6 +29,33 @@ namespace CodeHub.ViewControllers
                     new RawContentViewController(x.RawUrl, null) { Title = name }, true);
                 return el;
             });
+        }
+
+        public override Source CreateSizingSource(bool unevenRows)
+        {
+            return new CustomSource(this);
+        }
+    
+        private class CustomSource : Source
+        {
+            public CustomSource(PullRequestFilesViewController parent)
+                : base(parent)
+            {
+            }
+
+            public override MonoTouch.UIKit.UIView GetViewForHeader(MonoTouch.UIKit.UITableView tableView, int sectionIdx)
+            {
+                var view = base.GetViewForHeader(tableView, sectionIdx);
+                foreach (var v in view.Subviews)
+                {
+                    var label = v as UILabel;
+                    if (label != null)
+                    {
+                        label.LineBreakMode = UILineBreakMode.HeadTruncation;
+                    }
+                }
+                return view;
+            }
         }
     }
 }
