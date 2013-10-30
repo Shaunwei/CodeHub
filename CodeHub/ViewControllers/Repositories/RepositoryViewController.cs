@@ -231,7 +231,7 @@ namespace CodeHub.ViewControllers
 
             var sec3 = new Section
             {
-                new StyledStringElement("Changes".t(), () => NavigationController.PushViewController(new ChangesetsViewController(model.Owner.Login, model.Name), true), Images.Commit),
+                new StyledStringElement("Changes".t(), ChangesTapped, Images.Commit),
                 new StyledStringElement("Pull Requests".t(), () => NavigationController.PushViewController(new PullRequestsViewController(model.Owner.Login, model.Name), true), Images.Hand),
                 new StyledStringElement("Branches".t(), () => NavigationController.PushViewController(new BranchesViewController(model.Owner.Login, model.Name), true), Images.Branch),
                 new StyledStringElement("Tags".t(), () => NavigationController.PushViewController(new TagsViewController(model.Owner.Login, model.Name), true), Images.Tag)
@@ -246,6 +246,18 @@ namespace CodeHub.ViewControllers
             }
 
             Root = root;
+        }
+
+        private void ChangesTapped()
+        {
+            if (ViewModel.Branches != null && ViewModel.Branches.Count == 1)
+            {
+                NavigationController.PushViewController(new ChangesetsViewController(ViewModel.Repository.Owner.Login, ViewModel.Repository.Name), true);
+            }
+            else
+            {
+                NavigationController.PushViewController(new ChangesetBranchesViewController(ViewModel.Repository.Owner.Login, ViewModel.Repository.Name), true);
+            }
         }
 
         public void UpdatedImage(Uri uri)

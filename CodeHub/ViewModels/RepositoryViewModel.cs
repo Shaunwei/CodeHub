@@ -2,6 +2,7 @@ using GitHubSharp.Models;
 using CodeFramework.ViewModels;
 using System.Threading.Tasks;
 using CodeHub.ViewModels;
+using System.Collections.Generic;
 
 namespace CodeHub.Controllers
 {
@@ -11,6 +12,7 @@ namespace CodeHub.Controllers
         private bool _watched;
         private RepositoryModel _repository;
         private ContentModel _readme;
+        private List<BranchModel> _branches;
 
         public string Username 
         { 
@@ -48,6 +50,12 @@ namespace CodeHub.Controllers
             private set { SetProperty(ref _readme, value); }
         }
 
+        public List<BranchModel> Branches
+        {
+            get { return _branches; }
+            private set { SetProperty(ref _branches, value); }
+        }
+
         public RepositoryViewModel(string user, string repo)
         {
             Username = user;
@@ -62,6 +70,16 @@ namespace CodeHub.Controllers
             }));
 
             FireAndForgetTask.Start(() => {
+                this.RequestModel(Application.Client.Users[Username].Repositories[RepositoryName].GetReadme(), 
+                                  forceDataRefresh, response => Readme = response.Data);
+            });
+
+            FireAndForgetTask.Start(() => {
+                this.RequestModel(Application.Client.Users[Username].Repositories[RepositoryName].GetBranches(), 
+                                  forceDataRefresh, response => Branches = response.Data);
+            });
+
+            FireAndForgetTask.Start(() => {
                 this.RequestModel(Application.Client.Users[Username].Repositories[RepositoryName].IsWatching(), 
                                   forceDataRefresh, response => IsWatched = response.Data);
             });
@@ -69,11 +87,6 @@ namespace CodeHub.Controllers
             FireAndForgetTask.Start(() => {
                 this.RequestModel(Application.Client.Users[Username].Repositories[RepositoryName].IsStarred(), 
                                   forceDataRefresh, response => IsStarred = response.Data);
-            });
-
-            FireAndForgetTask.Start(() => {
-                this.RequestModel(Application.Client.Users[Username].Repositories[RepositoryName].GetReadme(), 
-                                  forceDataRefresh, response => Readme = response.Data);
             });
 
             return t1;

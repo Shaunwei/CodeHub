@@ -22,9 +22,9 @@ namespace CodeHub.ViewControllers
             EnableSearch = false;
         }
 
-        public ChangesetsViewController(string user, string slug) : this()
+        public ChangesetsViewController(string user, string slug, string branch = null) : this()
         {
-            ViewModel = new ChangesetViewModel(user, slug);
+            ViewModel = new ChangesetViewModel(user, slug, branch);
             DoBinding();
         }
 

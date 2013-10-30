@@ -24,15 +24,22 @@ namespace CodeHub.ViewModels
             private set;
         }
 
+        public string Branch
+        {
+            get;
+            private set;
+        }
+
         public CollectionViewModel<CommitModel> Commits
         {
             get { return _commits; }
         }
         
-        public ChangesetViewModel(string username, string repository)
+        public ChangesetViewModel(string username, string repository, string branch = null)
         {
             Username = username;
             Repository = repository;
+            Branch = branch;
         }
 
         public Task Load(bool forceDataRefresh)
@@ -42,7 +49,7 @@ namespace CodeHub.ViewModels
 
         protected virtual GitHubRequest<List<CommitModel>> GetRequest()
         {
-            return Application.Client.Users[Username].Repositories[Repository].Commits.GetAll();
+            return Application.Client.Users[Username].Repositories[Repository].Commits.GetAll(Branch);
         }
     }
 }

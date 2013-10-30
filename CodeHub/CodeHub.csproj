@@ -231,6 +231,7 @@
     <Compile Include="ViewControllers\Organizations\OrganizationsViewController.cs" />
     <Compile Include="ViewControllers\Organizations\OrganizationViewController.cs" />
     <Compile Include="Filters\ViewControllers\IssueMilestonesFilterViewController.cs" />
+    <Compile Include="ViewControllers\Source\ChangesetBranchesViewController.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <ItemGroup>
