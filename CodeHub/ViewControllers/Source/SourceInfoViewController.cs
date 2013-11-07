@@ -3,6 +3,7 @@ using MonoTouch.UIKit;
 using MonoTouch.Foundation;
 using GitHubSharp;
 using CodeFramework.Views;
+using GitHubSharp.Models;
 
 namespace CodeHub.ViewControllers
 {
@@ -73,26 +74,74 @@ namespace CodeHub.ViewControllers
         }
     }
 
-    public class SourceInfoViewController : RawContentViewController
+    public class SourceInfoViewController : FileSourceViewController
     {
-        public SourceInfoViewController(string rawHtmlUrl, string path)
-            : base (ReplaceFirst(rawHtmlUrl, "/blob/", "/raw/"), rawHtmlUrl)
+        protected DownloadResult _downloadResult;
+        private readonly ContentModel _model;
+
+        public SourceInfoViewController(ContentModel model)
         {
+            _model = model;
+            NavigationItem.RightBarButtonItem = new UIBarButtonItem(NavigationButton.Create(Theme.CurrentTheme.GearButton, ShowExtraMenu));
+
             //Create the filename
-            var fileName = System.IO.Path.GetFileName(path);
+            var fileName = System.IO.Path.GetFileName(model.Path);
             if (fileName == null)
-                fileName = path.Substring(path.LastIndexOf('/') + 1);
+                fileName = model.Path.Substring(model.Path.LastIndexOf('/') + 1);
 
             //Create the temp file path
             Title = fileName;
         }
 
-        private static string ReplaceFirst(string text, string search, string replace)
+        private void ShowExtraMenu()
         {
-            int pos = text.IndexOf(search);
-            if (pos < 0)
-                return text;
-            return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
+            var sheet = MonoTouch.Utilities.GetSheet(Title);
+
+            var openButton = _downloadResult != null ? sheet.AddButton("Open In".t()) : -1;
+            var shareButton = sheet.AddButton("Share".t());
+            var showButton = _model.HtmlUrl != null ? sheet.AddButton("Show in GitHub".t()) : -1;
+            var cancelButton = sheet.AddButton("Cancel".t());
+            sheet.CancelButtonIndex = cancelButton;
+            sheet.DismissWithClickedButtonIndex(cancelButton, true);
+            sheet.Clicked += (s, e) => {
+                if (e.ButtonIndex == openButton)
+                {
+                    var ctrl = new UIDocumentInteractionController();
+                    ctrl.Url = NSUrl.FromFilename(_downloadResult.File);
+                    ctrl.PresentOpenInMenu(NavigationItem.RightBarButtonItem, true);
+                }
+                else if (e.ButtonIndex == shareButton)
+                {
+                    var item = UIActivity.FromObject (_model.HtmlUrl);
+                    var activityItems = new NSObject[] { item };
+                    UIActivity[] applicationActivities = null;
+                    var activityController = new UIActivityViewController (activityItems, applicationActivities);
+                    PresentViewController (activityController, true, null);
+                }
+                else if (e.ButtonIndex == showButton)
+                {
+                    try { UIApplication.SharedApplication.OpenUrl(new NSUrl(_model.HtmlUrl)); } catch { }
+                }
+            };
+
+            sheet.ShowInView(this.View);
+        }
+
+        protected override void Request()
+        {
+            try 
+            {
+                var result = _downloadResult = DownloadFile2(_model.GitUrl, _model.Name);
+                var ext = System.IO.Path.GetExtension(_model.Name).TrimStart('.');
+                if (!result.IsBinary)
+                    LoadRawData(System.Security.SecurityElement.Escape(System.IO.File.ReadAllText(result.File, System.Text.Encoding.UTF8)), ext);
+                else
+                    LoadFile(result.File);
+            }
+            catch (InternalServerException ex)
+            {
+                MonoTouch.Utilities.ShowAlert("Error", ex.Message);
+            }
         }
     }
 }

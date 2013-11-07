@@ -43,6 +43,23 @@ namespace CodeHub.ViewControllers
             return new DownloadResult { IsBinary = IsBinary(mime), File = filepath };
         }
 
+        protected static DownloadResult DownloadFile2(string rawUrl, string filename)
+        {
+            //Create a temporary filename
+            var filepath = CreateFile(filename);
+            string mime = null;
+
+            //Find
+            using (var stream = new System.IO.FileStream(filepath, System.IO.FileMode.Create, System.IO.FileAccess.Write))
+            {
+                mime = Application.Client.DownloadRawResource2(rawUrl, stream) ?? string.Empty;
+            }
+
+            var isText = mime.Contains("charset");
+
+            return new DownloadResult { IsBinary = !isText, File = filepath };
+        }
+
         private static bool IsBinary(string mime)
         {
             var lowerMime = mime.ToLower();
