@@ -33,6 +33,7 @@ namespace CodeHub.ViewControllers
         {
             Title = "Commit".t();
             Root.UnevenRows = true;
+            //Style = UITableViewStyle.Plain;
             ViewModel = new ChangesetInfoViewModel(user, repository, node);
             
             _header = new HeaderView(0f) { Title = "Commit: ".t() + node.Substring(0, node.Length > 10 ? 10 : node.Length) };
@@ -102,26 +103,47 @@ namespace CodeHub.ViewControllers
 
             if (_viewSegment.SelectedSegment == 0)
             {
-                var fileSection = new Section();
-                commitModel.Files.ForEach(x => {
-                    var file = x.Filename.Substring(x.Filename.LastIndexOf('/') + 1);
-                    var sse = new ChangesetElement(file, x.Status, x.Additions, x.Deletions);
-                    sse.Tapped += () => {
-                        string parent = null;
-                        if (commitModel.Parents != null && commitModel.Parents.Count > 0)
-                            parent = commitModel.Parents[0].Sha;
+                if (ViewModel.Files.GroupingFunction != null)
+                {
+                    foreach (var g in ViewModel.Files.GroupingFunction(ViewModel.Files))
+                    {
+                        var container = new UIView();
+                        container.Frame = new System.Drawing.RectangleF(0, 0, 320, 20);
+                        container.AutosizesSubviews = true;
+                        var header = new UILabel();
+                        header.Frame = new System.Drawing.RectangleF(15, 0, 290, 20);
+                        header.TextColor = Theme.CurrentTheme.MainSubtitleColor;
+                        header.BackgroundColor = UIColor.Clear;
+                        header.Font = UIFont.SystemFontOfSize(13f);
+                        header.Text = g.Key;
+                        header.LineBreakMode = UILineBreakMode.HeadTruncation;
+                        header.AutoresizingMask = UIViewAutoresizing.All;
+                        container.AddSubview(header);
 
-                        // This could mean it's a binary or it's just been moved with no changes...
-                        if (x.Patch == null)
-                            NavigationController.PushViewController(new RawContentViewController(x.ContentsUrl, x.BlobUrl, x.Filename, x.Patch == null), true);
-                        else
-                            NavigationController.PushViewController(new ChangesetDiffViewController(ViewModel.User, ViewModel.Repository, commitModel.Sha, x) { Comments = ViewModel.Comments.Items.ToList() }, true);
-                    };
-                    fileSection.Add(sse);
-                });
+                        var sec = new Section(container);
 
-                if (fileSection.Elements.Count > 0)
-                    root.Add(fileSection);
+                        foreach (var x in g)
+                        {
+                            var file = x.Filename.Substring(x.Filename.LastIndexOf('/') + 1);
+                            var sse = new ChangesetElement(file, x.Status, x.Additions, x.Deletions);
+                            sse.Tapped += () =>
+                            {
+                                string parent = null;
+                                if (commitModel.Parents != null && commitModel.Parents.Count > 0)
+                                    parent = commitModel.Parents[0].Sha;
+
+                                // This could mean it's a binary or it's just been moved with no changes...
+                                if (x.Patch == null)
+                                    NavigationController.PushViewController(new RawContentViewController(x.ContentsUrl, x.BlobUrl, x.Filename, x.Patch == null), true);
+                                else
+                                    NavigationController.PushViewController(new ChangesetDiffViewController(ViewModel.User, ViewModel.Repository, commitModel.Sha, x) { Comments = ViewModel.Comments.Items.ToList() }, true);
+                            };
+                            sec.Add(sse);
+                        }
+
+                        root.Add(sec);
+                    }
+                }
             }
             else if (_viewSegment.SelectedSegment == 1)
             {
