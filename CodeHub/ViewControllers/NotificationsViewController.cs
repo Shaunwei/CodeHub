@@ -6,6 +6,7 @@ using CodeFramework.ViewControllers;
 using MonoTouch.UIKit;
 using CodeHub.Filters.Models;
 using System.Threading.Tasks;
+using CodeFramework.Views;
 
 namespace CodeHub.ViewControllers
 {
@@ -31,8 +32,31 @@ namespace CodeHub.ViewControllers
             _viewSegment.ControlStyle = UISegmentedControlStyle.Bar;
             _segmentBarButton = new UIBarButtonItem(_viewSegment);
 
+            NavigationItem.RightBarButtonItem = new UIBarButtonItem(NavigationButton.Create(Theme.CurrentTheme.CheckButton, MarkAllAsRead));
+            NavigationItem.RightBarButtonItem.Enabled = false;
+
             BindCollection(ViewModel.Notifications, CreateElement);
             ViewModel.Bind(x => x.IsLoading, Loading);
+
+
+            ViewModel.Notifications.CollectionChanged += (sender, e) => {
+                InvokeOnMainThread(() => {
+                    NavigationItem.RightBarButtonItem.Enabled = (_viewSegment.SelectedSegment == 0 || _viewSegment.SelectedSegment == 1) && ViewModel.Notifications.Items.Count > 0;
+                });
+            };
+        }
+
+        private async void MarkAllAsRead()
+        {
+            try
+            {
+                await ViewModel.MarkAllAsRead();
+            }
+            catch (Exception ex)
+            {
+                MonoTouch.Utilities.ShowAlert("Error".t(), ex.Message);
+                MonoTouch.Utilities.LogException(ex);
+            }
         }
 
         private TaskCompletionSource<bool> _loadingSource;

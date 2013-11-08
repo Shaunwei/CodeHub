@@ -72,6 +72,52 @@ namespace CodeHub.Controllers
             }
         }
 
+        public async Task MarkAllAsRead()
+        {
+            if (Notifications.Items.Count == 0)
+                return;
+
+            if (Notifications.Filter.Participating == false)
+            {
+                IsLoading = true;
+                try
+                {
+                    var response = await Application.Client.ExecuteAsync(Application.Client.Notifications.MarkAsRead());
+                    if (response.Data)
+                    {
+                        foreach (var n in Notifications)
+                            n.Unread = false;
+                        Notifications.Items.Clear();
+                        UpdateAccountNotificationsCount();
+                    }
+                }
+                finally
+                {
+                    IsLoading = false;
+                }
+            }
+            else
+            {
+                IsLoading = true;
+                try
+                {
+                    foreach (var n in Notifications.Items)
+                    {
+                        try { await Application.Client.ExecuteAsync(Application.Client.Notifications[n.Id].MarkAsRead()); } catch { }
+                    }
+
+                    foreach (var n in Notifications)
+                        n.Unread = false;
+                    Notifications.Items.Clear();
+                    UpdateAccountNotificationsCount();
+                }
+                finally
+                {
+                    IsLoading = false;
+                }
+            }
+        }
+
         private void UpdateAccountNotificationsCount()
         {
             // Only update if we're looking at 
