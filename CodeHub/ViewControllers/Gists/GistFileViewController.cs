@@ -2,6 +2,7 @@ using GitHubSharp.Models;
 using MonoTouch.UIKit;
 using CodeFramework.Views;
 using CodeFramework.ViewControllers;
+using GitHubSharp;
 
 namespace CodeHub.ViewControllers
 {
@@ -11,7 +12,7 @@ namespace CodeHub.ViewControllers
         private string _content;
 
         public GistFileViewController(GistFileModel model, string gistUrl, string content = null)
-            : base(model.RawUrl, gistUrl)
+            : base(model.RawUrl, gistUrl, model.Filename, false)
         {
             _model = model;
             Title = model.Filename;
@@ -22,7 +23,16 @@ namespace CodeHub.ViewControllers
         {
             if (_content == null)
             {
-                base.Request();
+                try 
+                {
+                    var result = _downloadResult = DownloadFile(_model.RawUrl);
+                    var ext = System.IO.Path.GetExtension(_model.RawUrl).TrimStart('.');
+                    LoadRawData(System.Security.SecurityElement.Escape(System.IO.File.ReadAllText(result.File, System.Text.Encoding.UTF8)), ext);
+                }
+                catch (InternalServerException ex)
+                {
+                    MonoTouch.Utilities.ShowAlert("Error", ex.Message);
+                }
             }
             else
             {

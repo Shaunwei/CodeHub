@@ -113,7 +113,7 @@ namespace CodeHub.ViewControllers
 
                         // This could mean it's a binary or it's just been moved with no changes...
                         if (x.Patch == null)
-                            NavigationController.PushViewController(new RawContentViewController(x.RawUrl, x.BlobUrl), true);
+                            NavigationController.PushViewController(new RawContentViewController(x.ContentsUrl, x.BlobUrl, x.Filename, x.Patch == null), true);
                         else
                             NavigationController.PushViewController(new ChangesetDiffViewController(ViewModel.User, ViewModel.Repository, commitModel.Sha, x) { Comments = ViewModel.Comments.Items.ToList() }, true);
                     };

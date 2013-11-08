@@ -103,6 +103,9 @@
     <Reference Include="GoogleAnalytics">
       <HintPath>..\CodeFramework\CodeFramework\lib\GoogleAnalytics.dll</HintPath>
     </Reference>
+    <Reference Include="RestSharp.MonoTouch">
+      <HintPath>..\GitHubSharp\lib\RestSharp\RestSharp.MonoTouch.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -250,10 +253,6 @@
     <ProjectReference Include="..\CodeFramework\OHAttributedLabel\OHAttributedLabel.csproj">
       <Project>{1FD1BA85-25F8-460D-B588-0E753CFF578D}</Project>
       <Name>OHAttributedLabel</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\GitHubSharp\RestSharp\RestSharp.MonoTouch\RestSharp.MonoTouch.csproj">
-      <Project>{E9A9D1C5-4E06-4D31-9809-A97188C70B2C}</Project>
-      <Name>RestSharp.MonoTouch</Name>
     </ProjectReference>
     <ProjectReference Include="..\CodeFramework\monotouch-uservoice\UserVoice\UserVoice\UserVoice.csproj">
       <Project>{3A0C5D98-D568-43C1-A877-B1BA00BA4A87}</Project>

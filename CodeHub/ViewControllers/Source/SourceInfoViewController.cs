@@ -11,13 +11,17 @@ namespace CodeHub.ViewControllers
     {
         private readonly string _rawUrl;
         private readonly string _githubUrl;
+        private readonly string _filename;
         protected DownloadResult _downloadResult;
+        private readonly bool _isBinary;
 
-        public RawContentViewController(string rawUrl, string githubUrl)
+        public RawContentViewController(string rawUrl, string githubUrl, string filename, bool isBinary)
         {
+            _isBinary = isBinary;
+            _filename = filename;
             _rawUrl = rawUrl;
             _githubUrl = githubUrl;
-            Title = rawUrl.Substring(rawUrl.LastIndexOf('/') + 1);
+            Title = filename.Substring(filename.LastIndexOf('/') + 1);
             NavigationItem.RightBarButtonItem = new UIBarButtonItem(NavigationButton.Create(Theme.CurrentTheme.GearButton, ShowExtraMenu));
         }
 
@@ -60,9 +64,9 @@ namespace CodeHub.ViewControllers
         {
             try 
             {
-                var result = _downloadResult = DownloadFile(_rawUrl);
-                var ext = System.IO.Path.GetExtension(_rawUrl).TrimStart('.');
-                if (!result.IsBinary)
+                var result = _downloadResult = DownloadFile2(_rawUrl, _filename);
+                var ext = System.IO.Path.GetExtension(_filename).TrimStart('.');
+                if (!_isBinary)
                     LoadRawData(System.Security.SecurityElement.Escape(System.IO.File.ReadAllText(result.File, System.Text.Encoding.UTF8)), ext);
                 else
                     LoadFile(result.File);
