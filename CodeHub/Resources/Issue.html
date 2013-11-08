@@ -3,13 +3,25 @@
 		<title></title>
 		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0"/>
     	<script type="text/javascript" src="jquery.min.js"></script>
+    	<script type="text/javascript" src="marked.js"></script>
 		<script type="text/javascript">
+		
+			function tryMarkdown(s) {
+				try {
+					return marked(s);
+				}
+				catch (err)
+				{
+					return "";
+				}
+			}
+		
 			function setDescription(data) {
-				$('#description').html(data);
+				$('#description').html(tryMarkdown(data));
 			}
 			
 			function setData(data) {
-				$('#description').html(data.description);
+				$('#description').html(tryMarkdown(data.description));
 				$('#title').text(data.title);
 				$('#updated').text(data.updated_at);
 				$('#state_text').text(data.state);
@@ -36,7 +48,7 @@
 								      '<div class="content">' +
 									  '<h1>' + data.login + '</h1>' + 
 								      '<span class="updated">' + data.updated_at + '</span>' +
-									  '<div class="body markdown">' + data.body + '</div></div></div>');
+									  '<div class="body markdown">' + tryMarkdown(data.body) + '</div></div></div>');
 									  
 			  	$('#comments .container').show();
 			}

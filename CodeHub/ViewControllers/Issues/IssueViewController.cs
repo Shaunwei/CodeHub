@@ -112,7 +112,7 @@ namespace CodeHub.ViewControllers
                 avatarUrl = x.User.AvatarUrl, 
                 login = x.User.Login, 
                 updated_at = x.CreatedAt.ToDaysAgo(), 
-                body = ViewModel.ConvertToMarkdown(x.Body)
+                body = x.Body
             });
             var data = new RestSharp.Serializers.JsonSerializer().Serialize(comments.ToList());
             Web.EvaluateJavascript("var a = " + data + "; setComments(a);");
@@ -136,16 +136,12 @@ namespace CodeHub.ViewControllers
                 assigned_to = assignedToStr ?? "Unassigned", 
                 updated_at = "Updated " + ViewModel.Issue.UpdatedAt.ToDaysAgo(),
                 title = ViewModel.Issue.Title,
-                assigned_to_login = assignedToStr ?? ""
+                assigned_to_login = assignedToStr ?? "",
+                description = ViewModel.Issue.Body
             };
 
             var data = new RestSharp.Serializers.JsonSerializer().Serialize(issue);
             Web.EvaluateJavascript("var a = " + data + "; setData(a);");
-
-            var md = new MarkdownSharp.Markdown();
-
-            var desc = FileSourceViewController.JavaScriptStringEncode(md.Transform(ViewModel.Issue.Body));
-            Web.EvaluateJavascript("var a = \"" + desc + "\"; setDescription(a);");
         }
 
         void EditingComplete(IssueModel model)

@@ -55,14 +55,14 @@ namespace CodeHub.ViewModels
             return t1;
         }
 
-        public string ConvertToMarkdown(string str)
-        {
-            var options = new MarkdownSharp.MarkdownOptions();
-            options.AutoHyperlink = true;
-            var md = new MarkdownSharp.Markdown(options);
-            return md.Transform(str);
-        }
-
+//        public string ConvertToMarkdown(string str)
+//        {
+//            var options = new MarkdownSharp.MarkdownOptions();
+//            options.AutoHyperlink = true;
+//            var md = new MarkdownSharp.Markdown(options);
+//            return md.Transform(str);
+//        }
+//
         public IssueViewModel(string username, string repository, ulong id)
         {
             Username = username;
