@@ -72,6 +72,27 @@ namespace CodeHub.Controllers
             }
         }
 
+        public async Task MarkAllAsRead(string s)
+        {
+            IsLoading = true;
+            try
+            {
+                var ur = s.Split('/');
+                var response = await Application.Client.ExecuteAsync(Application.Client.Notifications.MarkRepoAsRead(ur[0], ur[1]));
+                if (response.Data)
+                {
+                    foreach (var n in Notifications)
+                        n.Unread = false;
+                    Notifications.Items.Clear();
+                    UpdateAccountNotificationsCount();
+                }
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
         public async Task MarkAllAsRead()
         {
             if (Notifications.Items.Count == 0)

@@ -7,6 +7,7 @@ using MonoTouch.UIKit;
 using CodeHub.Filters.Models;
 using System.Threading.Tasks;
 using CodeFramework.Views;
+using System.Drawing;
 
 namespace CodeHub.ViewControllers
 {
@@ -127,7 +128,30 @@ namespace CodeHub.ViewControllers
             return el;
         }
 
-        
+        protected override UIView CreateTableSectionView(string key)
+        {
+            Action a = null;
+
+            if (_viewSegment.SelectedSegment != 2)
+            {
+                a = () => ClearForRepo(key);
+            }
+            return new NotificationSectionView(key, a);
+        }
+
+        private async void ClearForRepo(string s)
+        {
+            try
+            {
+                await ViewModel.MarkAllAsRead(s);
+            }
+            catch (Exception ex)
+            {
+                MonoTouch.Utilities.ShowAlert("Error".t(), ex.Message);
+                MonoTouch.Utilities.LogException(ex);
+            }
+        }
+
         protected override void SearchEnd()
         {
             base.SearchEnd();
@@ -176,6 +200,45 @@ namespace CodeHub.ViewControllers
             if (ToolbarItems != null)
                 NavigationController.SetToolbarHidden(true, animated);
             base.ViewWillDisappear(animated);
+        }
+
+
+        private class NotificationSectionView : TableViewSectionView
+        {
+            UIButton _btn;
+            public NotificationSectionView(string s, Action a)
+                : base(s)
+            {
+                Frame = new RectangleF(0, 0, 320, 34);
+
+                if (a != null)
+                {
+                    _btn = new UIButton();
+                    _btn.SetImage(Theme.CurrentTheme.CheckButton, UIControlState.Normal);
+                    _btn.TouchUpInside += (sender, e) => a();
+                    _btn.Frame = new RectangleF(270, 3, 40, 28);
+                    _btn.Layer.ShadowOpacity = 0.6f;
+                    _btn.Layer.ShadowColor = UIColor.Black.CGColor;
+                    _btn.Layer.ShadowOffset = new SizeF(0, 0);
+                    _btn.Layer.MasksToBounds = false;
+                    AddSubview(_btn);
+                }
+            }
+
+            public override void LayoutSubviews()
+            {
+                base.LayoutSubviews();
+
+                if (_btn == null)
+                {
+                    _lbl.Frame = new RectangleF(10, 2, Bounds.Width - 20f, Bounds.Height - 4f);
+                }
+                else
+                {
+                    _lbl.Frame = new RectangleF(10, 2, Bounds.Width - 50f, Bounds.Height - 4f);
+                    _btn.Frame = new RectangleF(Bounds.Width - 50f, 3, 40f, Bounds.Height - 3f);
+                }
+            }
         }
 
     }
